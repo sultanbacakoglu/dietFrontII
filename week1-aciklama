@@ -1,0 +1,14 @@
+Proje Mimarisi ve Navigasyon
+Expo Router Yapılandırması: Uygulama modern dosya tabanlı navigasyon (app klasörü) ile kuruldu.
+Grup Navigasyonu: Giriş süreçleri için (auth) ve ana uygulama içeriği için (tabs) klasör grupları oluşturuldu.
+Root Redirect: Uygulama açıldığında app/index.tsx üzerinden kullanıcıyı otomatik olarak Login ekranına yönlendiren mantık kuruldu.
+Tab Bar (Alt Menü): (tabs)/_layout.tsx dosyasında 4 sekmeli (Ana Sayfa, Hastalar, Randevu, Profil) navigasyon çubuğu tasarlandı.
+
+UI Bileşenleri 
+StatCard: Dashboard üzerindeki istatistik kutularını; ikon, renk ve "artış yüzdesi" gibi dinamik verileri destekleyecek şekilde TypeScript ile yazıldı.
+AppointmentCard: Randevu listesindeki satırları; isimden otomatik avatar oluşturma ve mesaj ikonu özellikleriyle hazırlandı.
+MyInput: Formlarda kullanılan, label desteği olan ve tasarıma uygun gri arka planlı özel giriş alanları oluşturuldu.
+
+Ekran Mantığı ve Formlar
+Login & Register Sayfaları: Kullanıcı giriş ve kayıt ekranlarını, ekranlar arası geçiş (router.push, router.replace) ve temel form doğrulama (validation) işlemleri yazıldı.
+Dashboard (Ana Sayfa): Figma tasarımındaki header (profil/bildirim), yan yana duran istatistik kartları ve alt alta sıralanan randevu listesi ScrollView içinde birleştirildi.
