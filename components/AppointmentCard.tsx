@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export const AppointmentCard = ({ name, time }: any) => {
-  // Tasarımdaki gibi isimlerin ilk harfini avatar olarak kullanalım
   const avatarText = name
     .split(" ")
     .map((n: string) => n[0])
