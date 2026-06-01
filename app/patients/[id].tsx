@@ -12,16 +12,17 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { getHastaById, hastaSil, Hasta } from "../services/api";
+import { getHastaById, hastaSil, Hasta } from "../../services/api";
+import { T } from "../../constants/theme";
 
 const COLORS = {
-  primary: "#6366F1",
-  secondary: "#EC4899",
-  success: "#10B981",
-  warning: "#F59E0B",
-  danger: "#EF4444",
-  purple: "#8B5CF6",
-  cyan: "#06B6D4",
+  primary: T.primary,
+  secondary: T.pink,
+  success: T.success,
+  warning: T.warning,
+  danger: T.danger,
+  purple: T.purple,
+  cyan: T.accent,
   teal: "#14B8A6",
 };
 
@@ -93,7 +94,7 @@ export default function PatientDetailScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <Ionicons name="arrow-back" size={24} color="#64748B" />
+            <Ionicons name="arrow-back" size={24} color={T.textSec} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Hasta Detay</Text>
           <View style={{ width: 44 }} />
@@ -109,7 +110,7 @@ export default function PatientDetailScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={24} color="#64748B" />
+          <Ionicons name="arrow-back" size={24} color={T.textSec} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Hasta Detay</Text>
         <TouchableOpacity onPress={handleSil} style={styles.deleteBtn}>
@@ -119,14 +120,14 @@ export default function PatientDetailScreen() {
 
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.profileCard}>
-          <View style={[styles.avatar, { backgroundColor: "#EEF2FF" }]}>
+          <View style={[styles.avatar, { backgroundColor: T.primaryLight }]}>
             <Text style={[styles.avatarText, { color: COLORS.primary }]}>
               {hasta.adSoyad.charAt(0).toUpperCase()}
             </Text>
           </View>
           <Text style={styles.name}>{hasta.adSoyad}</Text>
-          <View style={[styles.emailBadge, { backgroundColor: "#F1F5F9" }]}>
-            <Ionicons name="mail-outline" size={14} color="#64748B" />
+          <View style={[styles.emailBadge, { backgroundColor: T.bg }]}>
+            <Ionicons name="mail-outline" size={14} color={T.textSec} />
             <Text style={styles.email}>{hasta.eposta}</Text>
           </View>
 
@@ -250,7 +251,7 @@ function InfoRow({ icon, iconColor, iconBg, label, value, isLast }: {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: T.bg,
   },
   loadingContainer: {
     flex: 1,
@@ -272,9 +273,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: "#fff",
+    backgroundColor: T.card,
     borderBottomWidth: 1,
-    borderBottomColor: "#E2E8F0",
+    borderBottomColor: T.border,
   },
   backBtn: {
     width: 44,
@@ -285,7 +286,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#1E293B",
+    color: T.text,
   },
   deleteBtn: {
     width: 44,
@@ -298,7 +299,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   profileCard: {
-    backgroundColor: "#fff",
+    backgroundColor: T.card,
     borderRadius: 24,
     padding: 24,
     alignItems: "center",
@@ -324,7 +325,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#1E293B",
+    color: T.text,
     marginBottom: 8,
   },
   emailBadge: {
@@ -338,7 +339,7 @@ const styles = StyleSheet.create({
   },
   email: {
     fontSize: 14,
-    color: "#64748B",
+    color: T.textSec,
   },
   actionRow: {
     flexDirection: "row",
@@ -368,14 +369,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#94A3B8",
+    color: T.textMuted,
     marginBottom: 10,
     marginLeft: 4,
     textTransform: "uppercase",
     letterSpacing: 0.8,
   },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: T.card,
     borderRadius: 16,
     padding: 4,
     shadowColor: "#000",
@@ -405,12 +406,12 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 12,
-    color: "#94A3B8",
+    color: T.textMuted,
     marginBottom: 2,
   },
   infoValue: {
     fontSize: 15,
-    color: "#1E293B",
+    color: T.text,
     fontWeight: "500",
   },
   physicalRow: {

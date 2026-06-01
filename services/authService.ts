@@ -1,11 +1,12 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import { Platform } from "react-native";
 
-const BASE_URL = Platform.select({
+export const API_URL = Platform.select({
     ios: "http://localhost:8080/api",
     android: "http://10.0.2.2:8080/api",
     default: "http://localhost:8080/api",
-});
+})!;
 
 const KEYS = {
     TOKEN: "auth_token",
@@ -25,9 +26,9 @@ export const login = async (eposta: string, sifre: string): Promise<LoginRespons
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     try {
-        console.log("Login URL:", BASE_URL);
+        console.log("Login URL:", API_URL);
 
-        const response = await fetch(`${BASE_URL}/auth/login`, {
+        const response = await fetch(`${API_URL}/auth/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ eposta, sifre }),

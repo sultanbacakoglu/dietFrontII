@@ -13,16 +13,18 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { getHastalar, hastaEkle, Hasta } from "../services/api";
+import { getHastalar, hastaEkle, Hasta } from "../../services/api";
+import { getRandevular } from "../../services/appointmentService";
+import { T } from "../../constants/theme";
 
 const COLORS = {
-  primary: "#6366F1",
-  secondary: "#EC4899",
-  success: "#10B981",
-  warning: "#F59E0B",
-  danger: "#EF4444",
-  purple: "#8B5CF6",
-  cyan: "#06B6D4",
+  primary: T.primary,
+  secondary: T.pink,
+  success: T.success,
+  warning: T.warning,
+  danger: T.danger,
+  purple: T.purple,
+  cyan: T.accent,
 };
 
 const avatars = ["#FEE2E2", "#FEF3C7", "#D1FAE5", "#DBEAFE", "#E0E7FF", "#FCE7F3"];
@@ -33,6 +35,7 @@ function getAvatarColor(id?: number) {
 
 export default function Dashboard() {
   const [hastalar, setHastalar] = useState<Hasta[]>([]);
+  const [bugunRandevuSayisi, setBugunRandevuSayisi] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [formData, setFormData] = useState({
@@ -50,8 +53,16 @@ export default function Dashboard() {
 
   const fetchData = async () => {
     try {
-      const data = await getHastalar();
-      setHastalar(data);
+      const [hastalarData, randevularData] = await Promise.all([
+        getHastalar(),
+        getRandevular(),
+      ]);
+      setHastalar(hastalarData);
+
+      // Bugünün tarihiyle filtrele
+      const bugun = new Date();
+      const bugunStr = `${bugun.getFullYear()}-${String(bugun.getMonth() + 1).padStart(2, "0")}-${String(bugun.getDate()).padStart(2, "0")}`;
+      setBugunRandevuSayisi(randevularData.filter((r) => r.tarih === bugunStr).length);
     } catch (error) {
       console.error("Veri çekme hatası:", error);
     } finally {
@@ -101,7 +112,7 @@ export default function Dashboard() {
             <Text style={styles.title}>Diyetisyen Paneli</Text>
           </View>
           <View style={styles.profileBtn}>
-            <Ionicons name="person-circle" size={48} color={COLORS.primary} />
+            <Ionicons name="person-circle" size={48} color={T.primary} />
           </View>
         </View>
 
@@ -117,7 +128,7 @@ export default function Dashboard() {
             <View style={[styles.statIcon, { backgroundColor: "#ECFDF5" }]}>
               <Ionicons name="calendar" size={22} color={COLORS.success} />
             </View>
-            <Text style={styles.statNumber}>2</Text>
+            <Text style={styles.statNumber}>{bugunRandevuSayisi}</Text>
             <Text style={styles.statLabel}>Bugünkü Randevu</Text>
           </View>
         </View>
@@ -259,13 +270,13 @@ export default function Dashboard() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: T.bg,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#F8FAFC",
+    backgroundColor: T.bg,
   },
   content: {
     padding: 20,
@@ -279,20 +290,20 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 14,
-    color: "#64748B",
+    color: T.textSec,
     marginBottom: 2,
   },
   title: {
     fontSize: 26,
     fontWeight: "700",
-    color: "#1E293B",
+    color: T.text,
   },
   profileBtn: {
     width: 52,
     height: 52,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#EEF2FF",
+    backgroundColor: "rgba(255,255,255,0.2)",
     borderRadius: 26,
   },
   statsRow: {
@@ -302,7 +313,7 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: T.card,
     borderRadius: 16,
     padding: 16,
     borderLeftWidth: 4,
@@ -323,12 +334,12 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 28,
     fontWeight: "700",
-    color: "#1E293B",
+    color: T.text,
     marginBottom: 2,
   },
   statLabel: {
     fontSize: 12,
-    color: "#64748B",
+    color: T.textSec,
   },
   sectionHeader: {
     flexDirection: "row",
@@ -339,7 +350,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#1E293B",
+    color: T.text,
   },
   addBtn: {
     flexDirection: "row",
@@ -361,7 +372,7 @@ const styles = StyleSheet.create({
   patientCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: T.card,
     borderRadius: 14,
     padding: 16,
     shadowColor: "#000",
@@ -388,12 +399,12 @@ const styles = StyleSheet.create({
   patientName: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1E293B",
+    color: T.text,
     marginBottom: 2,
   },
   patientEmail: {
     fontSize: 13,
-    color: "#64748B",
+    color: T.textSec,
   },
   patientMeta: {
     flexDirection: "row",
@@ -414,7 +425,7 @@ const styles = StyleSheet.create({
   emptyState: {
     alignItems: "center",
     paddingVertical: 48,
-    backgroundColor: "#fff",
+    backgroundColor: T.card,
     borderRadius: 20,
   },
   emptyIcon: {
@@ -428,7 +439,7 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#374151",
+    color: T.text,
     marginBottom: 4,
   },
   emptySubtext: {
@@ -439,21 +450,21 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: T.bg,
   },
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     padding: 16,
-    backgroundColor: "#fff",
+    backgroundColor: T.card,
     borderBottomWidth: 1,
-    borderBottomColor: "#E2E8F0",
+    borderBottomColor: T.border,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#1E293B",
+    color: T.text,
   },
   modalContent: {
     padding: 20,
@@ -468,13 +479,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: "#fff",
+    backgroundColor: T.card,
     borderRadius: 12,
     padding: 14,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
-    color: "#1E293B",
+    borderColor: T.border,
+    color: T.text,
   },
   inputMultiline: {
     minHeight: 100,

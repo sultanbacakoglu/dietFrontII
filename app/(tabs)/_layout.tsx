@@ -1,11 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { Platform, View, StyleSheet, Text } from "react-native";
+import { T } from "../../constants/theme";
 
 const COLORS = {
-  primary: "#6366F1",
-  success: "#10B981",
-  purple: "#8B5CF6",
+  primary: T.primary,
+  success: T.success,
+  purple: T.purple,
 };
 
 export default function TabLayout() {
@@ -36,7 +37,7 @@ export default function TabLayout() {
           title: "Ana Sayfa",
           tabBarIcon: ({ color, focused }) => (
             <View style={styles.tabItem}>
-              <View style={[styles.iconBox, focused && { backgroundColor: "#EEF2FF" }]}>
+              <View style={[styles.iconBox, focused && { backgroundColor: T.primaryLight }]}>
                 <Ionicons
                   name={focused ? "home" : "home-outline"}
                   size={22}
@@ -54,7 +55,7 @@ export default function TabLayout() {
           title: "Randevular",
           tabBarIcon: ({ color, focused }) => (
             <View style={styles.tabItem}>
-              <View style={[styles.iconBox, focused && { backgroundColor: "#D1FAE5" }]}>
+              <View style={[styles.iconBox, focused && { backgroundColor: T.successLight }]}>
                 <Ionicons
                   name={focused ? "calendar" : "calendar-outline"}
                   size={22}
@@ -72,7 +73,7 @@ export default function TabLayout() {
           title: "Profil",
           tabBarIcon: ({ color, focused }) => (
             <View style={styles.tabItem}>
-              <View style={[styles.iconBox, focused && { backgroundColor: "#EDE9FE" }]}>
+              <View style={[styles.iconBox, focused && { backgroundColor: T.purpleLight }]}>
                 <Ionicons
                   name={focused ? "person" : "person-outline"}
                   size={22}

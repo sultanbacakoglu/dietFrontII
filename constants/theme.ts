@@ -1,53 +1,49 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
- */
+// ─── Uygulama renk paleti ───────────────────────────────────────────────────
 
-import { Platform } from 'react-native';
+export const T = {
+  primary:      "#5B5FEF",
+  primaryDark:  "#4338CA",
+  primaryLight: "#EEF2FF",
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+  accent:       "#06B6D4",
+  accentLight:  "#ECFEFF",
 
-export const Colors = {
-  light: {
-    text: '#11181C',
-    background: '#fff',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
-  },
-  dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
-  },
+  success:      "#10B981",
+  successLight: "#D1FAE5",
+
+  warning:      "#F59E0B",
+  warningLight: "#FEF3C7",
+
+  danger:       "#EF4444",
+  dangerLight:  "#FEE2E2",
+
+  purple:       "#8B5CF6",
+  purpleLight:  "#EDE9FE",
+
+  pink:         "#EC4899",
+  pinkLight:    "#FCE7F3",
+
+  // Yüzeyler
+  bg:        "#F8FAFC",
+  card:      "#FFFFFF",
+  border:    "#E2E8F0",
+
+  // Metin
+  text:      "#1E293B",
+  textSec:   "#64748B",
+  textMuted: "#94A3B8",
 };
 
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
-  },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-  web: {
-    sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-    serif: "Georgia, 'Times New Roman', serif",
-    rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
-    mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-  },
-});
+export const TIP_COLORS: Record<string, { bg: string; text: string }> = {
+  "İlk Görüşme":   { bg: T.primaryLight, text: T.primary },
+  "Kontrol":        { bg: T.successLight, text: T.success },
+  "Tetkik Sonucu": { bg: T.warningLight,  text: T.warning },
+  "Diyet Planı":   { bg: T.pinkLight,     text: T.pink    },
+  "Diğer":          { bg: "#F1F5F9",      text: T.textSec },
+};
+
+export const DURUM_COLORS: Record<string, { bg: string; text: string }> = {
+  "bekliyor":   { bg: T.warningLight, text: T.warning },
+  "tamamlandı": { bg: T.successLight, text: T.success },
+  "iptal":      { bg: T.dangerLight,  text: T.danger  },
+};

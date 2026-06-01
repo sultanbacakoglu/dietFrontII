@@ -12,7 +12,8 @@ import {
     Platform,
 } from "react-native";
 import { MyInput } from "../../components/ui/MyInput";
-import { login } from "../services/authService";
+import { login } from "../../services/authService";
+import { T } from "../../constants/theme";
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -62,7 +63,7 @@ export default function LoginScreen() {
                 <View style={styles.content}>
                     <View style={styles.header}>
                         <View style={styles.logoPlaceholder}>
-                            <Text style={{ color: "#007AFF", fontSize: 24 }}>+</Text>
+                            <Text style={{ color: T.primary, fontSize: 24 }}>+</Text>
                         </View>
                         <Text style={styles.title}>Diyetisyen Paneli</Text>
                         <Text style={styles.subtitle}>Hesabınıza giriş yapın</Text>
@@ -121,7 +122,7 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#fff" },
+    container: { flex: 1, backgroundColor: T.bg },
     keyboardView: { flex: 1 },
     content: { padding: 25, flex: 1, justifyContent: "center" },
     header: { alignItems: "center", marginBottom: 40 },
@@ -129,15 +130,15 @@ const styles = StyleSheet.create({
         width: 60,
         height: 60,
         borderRadius: 12,
-        backgroundColor: "#E3F2FD",
+        backgroundColor: T.primaryLight,
         justifyContent: "center",
         alignItems: "center",
         marginBottom: 15,
     },
-    title: { fontSize: 24, fontWeight: "bold", color: "#1A1A1A" },
-    subtitle: { color: "#666", marginTop: 5 },
+    title: { fontSize: 24, fontWeight: "bold", color: T.text },
+    subtitle: { color: T.textSec, marginTop: 5 },
     loginButton: {
-        backgroundColor: "#007AFF",
+        backgroundColor: T.primary,
         paddingHorizontal: 20,
         paddingVertical: 18,
         borderRadius: 12,
@@ -149,6 +150,6 @@ const styles = StyleSheet.create({
     },
     loginButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
     footer: { marginTop: 30, alignItems: "center" },
-    footerText: { color: "#666" },
-    link: { color: "#007AFF", fontWeight: "bold" },
+    footerText: { color: T.textSec },
+    link: { color: T.primary, fontWeight: "bold" },
 });

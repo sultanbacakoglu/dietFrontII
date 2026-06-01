@@ -2,22 +2,23 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, Alert } from "react-native";
+import { T } from "../../constants/theme";
 
 const COLORS = {
-  primary: "#6366F1",
-  success: "#10B981",
-  warning: "#F59E0B",
-  danger: "#EF4444",
-  purple: "#8B5CF6",
+  primary: T.primary,
+  success: T.success,
+  warning: T.warning,
+  danger: T.danger,
+  purple: T.purple,
 };
 
 const menuItems = [
-  { icon: "person-outline", label: "Profili Düzenle", color: "#EEF2FF", iconColor: COLORS.primary },
-  { icon: "notifications-outline", label: "Bildirimler", color: "#FEF3C7", iconColor: COLORS.warning },
-  { icon: "lock-closed-outline", label: "Gizlilik", color: "#D1FAE5", iconColor: COLORS.success },
-  { icon: "help-circle-outline", label: "Yardım", color: "#E0E7FF", iconColor: COLORS.purple },
-  { icon: "document-text-outline", label: "Kullanım Koşulları", color: "#FEE2E2", iconColor: COLORS.danger },
-  { icon: "information-circle-outline", label: "Hakkında", color: "#F3E8FF", iconColor: "#9333EA" },
+  { icon: "person-outline", label: "Profili Düzenle", color: T.primaryLight, iconColor: T.primary },
+  { icon: "notifications-outline", label: "Bildirimler", color: T.warningLight, iconColor: T.warning },
+  { icon: "lock-closed-outline", label: "Gizlilik", color: T.successLight, iconColor: T.success },
+  { icon: "help-circle-outline", label: "Yardım", color: "#E0E7FF", iconColor: T.purple },
+  { icon: "document-text-outline", label: "Kullanım Koşulları", color: T.dangerLight, iconColor: T.danger },
+  { icon: "information-circle-outline", label: "Hakkında", color: T.purpleLight, iconColor: "#9333EA" },
 ];
 
 export default function ProfileScreen() {
@@ -118,23 +119,23 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: T.bg,
   },
   header: {
     padding: 20,
   },
   greeting: {
     fontSize: 14,
-    color: "#64748B",
+    color: T.textSec,
     marginBottom: 2,
   },
   title: {
     fontSize: 26,
     fontWeight: "700",
-    color: "#1E293B",
+    color: T.text,
   },
   profileCard: {
-    backgroundColor: "#fff",
+    backgroundColor: T.card,
     marginHorizontal: 20,
     borderRadius: 24,
     padding: 24,
@@ -154,7 +155,7 @@ const styles = StyleSheet.create({
     width: 88,
     height: 88,
     borderRadius: 44,
-    backgroundColor: "#EEF2FF",
+    backgroundColor: T.primaryLight,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -174,7 +175,7 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#1E293B",
+    color: T.text,
     marginBottom: 6,
   },
   emailBadge: {
@@ -203,7 +204,7 @@ const styles = StyleSheet.create({
   },
   statsRow: {
     flexDirection: "row",
-    backgroundColor: "#fff",
+    backgroundColor: T.card,
     marginHorizontal: 20,
     borderRadius: 20,
     padding: 20,
@@ -221,16 +222,16 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#1E293B",
+    color: T.text,
     marginBottom: 2,
   },
   statLabel: {
     fontSize: 12,
-    color: "#64748B",
+    color: T.textSec,
   },
   statDivider: {
     width: 1,
-    backgroundColor: "#E2E8F0",
+    backgroundColor: T.border,
     marginVertical: 4,
   },
   menuSection: {
@@ -240,13 +241,13 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#94A3B8",
+    color: T.textMuted,
     textTransform: "uppercase",
     letterSpacing: 0.8,
     marginBottom: 12,
   },
   menuCard: {
-    backgroundColor: "#fff",
+    backgroundColor: T.card,
     borderRadius: 16,
     overflow: "hidden",
     shadowColor: "#000",
@@ -275,14 +276,14 @@ const styles = StyleSheet.create({
   menuLabel: {
     flex: 1,
     fontSize: 15,
-    color: "#1E293B",
+    color: T.text,
     fontWeight: "500",
   },
   logoutBtn: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#FEE2E2",
+    backgroundColor: T.dangerLight,
     marginHorizontal: 20,
     borderRadius: 16,
     padding: 16,
@@ -297,7 +298,7 @@ const styles = StyleSheet.create({
   version: {
     textAlign: "center",
     fontSize: 12,
-    color: "#94A3B8",
+    color: T.textMuted,
     marginBottom: 100,
   },
 });
