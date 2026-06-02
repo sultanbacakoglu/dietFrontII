@@ -37,6 +37,12 @@ function formatDate(date: Date): string {
     return `${y}-${m}-${d}`;
 }
 
+function displayDate(dateStr: string): string {
+    const [y, m, d] = dateStr.split("-");
+    const months = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
+    return `${d} ${months[parseInt(m) - 1]} ${y}`;
+}
+
 function getWeekDays(anchor: Date): Date[] {
     const days: Date[] = [];
     for (let i = -3; i <= 3; i++) {
@@ -57,6 +63,7 @@ export default function CalendarScreen() {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [silOnayId, setSilOnayId] = useState<number | null>(null);
+    const [listeGorunu, setListeGorunu] = useState(false);
 
     const weekDays = getWeekDays(anchor);
 
@@ -133,6 +140,83 @@ export default function CalendarScreen() {
         }
     };
 
+    const renderKart = (randevu: Randevu) => {
+        const tipRenk = TIP_COLORS[randevu.tip] ?? TIP_COLORS["Diğer"];
+        const durumRenk = DURUM_COLORS[randevu.durum ?? "bekliyor"] ?? DURUM_COLORS["bekliyor"];
+        const onayModu = silOnayId === randevu.id;
+        const tamamlandi = randevu.durum === "tamamlandı";
+        return (
+            <View key={randevu.id} style={styles.card}>
+                <View style={[styles.cardStripe, { backgroundColor: tipRenk.text }]} />
+                <View style={styles.cardContent}>
+                    <View style={styles.cardTop}>
+                        <View style={[styles.avatar, { backgroundColor: tipRenk.bg }]}>
+                            <Text style={[styles.avatarText, { color: tipRenk.text }]}>
+                                {(randevu.hastaAdSoyad ?? "?")
+                                    .split(" ").slice(0, 2)
+                                    .map((w: string) => w.charAt(0))
+                                    .join("").toUpperCase()}
+                            </Text>
+                        </View>
+                        <Text style={styles.cardPatient} numberOfLines={1}>
+                            {randevu.hastaAdSoyad ?? `Hasta #${randevu.hastaId}`}
+                        </Text>
+                        <View style={[styles.saatBadge, { backgroundColor: tipRenk.bg }]}>
+                            <Ionicons name="time-outline" size={11} color={tipRenk.text} />
+                            <Text style={[styles.saatBadgeText, { color: tipRenk.text }]}>{randevu.saat}</Text>
+                        </View>
+                    </View>
+                    <View style={styles.cardBottom}>
+                        <View style={styles.cardTags}>
+                            <View style={[styles.tag, { backgroundColor: tipRenk.bg }]}>
+                                <Text style={[styles.tagText, { color: tipRenk.text }]}>{randevu.tip}</Text>
+                            </View>
+                            <View style={[styles.tag, { backgroundColor: durumRenk.bg }]}>
+                                <Text style={[styles.tagText, { color: durumRenk.text }]}>
+                                    {randevu.durum ?? "bekliyor"}
+                                </Text>
+                            </View>
+                        </View>
+                        <View style={styles.cardActions}>
+                            <TouchableOpacity
+                                style={[styles.actionBtn, { backgroundColor: T.primaryLight }]}
+                                onPress={() => router.push({ pathname: "/appointments/edit", params: { id: String(randevu.id) } })}
+                                activeOpacity={0.6}
+                            >
+                                <Ionicons name="pencil-outline" size={15} color={T.primary} />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.actionBtn, { backgroundColor: tamamlandi ? "#D1FAE5" : "#F1F5F9" }]}
+                                onPress={() => handleOnayla(randevu.id!)}
+                                activeOpacity={0.6}
+                            >
+                                <Ionicons
+                                    name={tamamlandi ? "checkmark-circle" : "checkmark-circle-outline"}
+                                    size={18}
+                                    color={tamamlandi ? COLORS.success : COLORS.muted}
+                                />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.actionBtn, { backgroundColor: onayModu ? "#FEE2E2" : "#F1F5F9" }]}
+                                onPress={() => handleSilBasin(randevu.id!)}
+                                activeOpacity={0.6}
+                            >
+                                <Ionicons
+                                    name={onayModu ? "trash" : "trash-outline"}
+                                    size={16}
+                                    color={onayModu ? COLORS.danger : COLORS.muted}
+                                />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                    {randevu.notlar ? (
+                        <Text style={styles.cardNote} numberOfLines={1}>{randevu.notlar}</Text>
+                    ) : null}
+                </View>
+            </View>
+        );
+    };
+
     const selectedDate = new Date(secilenTarih + "T00:00:00");
     const isToday = secilenTarih === formatDate(new Date());
 
@@ -146,12 +230,20 @@ export default function CalendarScreen() {
                         {MONTHS[selectedDate.getMonth()]} {selectedDate.getFullYear()}
                     </Text>
                 </View>
-                <TouchableOpacity
-                    style={styles.addBtn}
-                    onPress={() => router.push("/appointments/create")}
-                >
-                    <Ionicons name="add" size={24} color="#fff" />
-                </TouchableOpacity>
+                <View style={{ flexDirection: "row", gap: 8 }}>
+                    <TouchableOpacity
+                        style={[styles.iconBtn, listeGorunu && { backgroundColor: T.primaryLight }]}
+                        onPress={() => setListeGorunu(!listeGorunu)}
+                    >
+                        <Ionicons name={listeGorunu ? "calendar" : "list"} size={20} color={T.primary} />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.addBtn}
+                        onPress={() => router.push("/appointments/create")}
+                    >
+                        <Ionicons name="add" size={24} color="#fff" />
+                    </TouchableOpacity>
+                </View>
             </View>
 
             {/* Hafta Seçici */}
@@ -231,87 +323,35 @@ export default function CalendarScreen() {
                             <Text style={styles.emptyBtnText}>Randevu Oluştur</Text>
                         </TouchableOpacity>
                     </View>
-                ) : (
+                ) : listeGorunu ? (
+                    // ── Liste görünümü: tüm randevular tarihe göre gruplanmış ──
                     <View style={styles.appointmentList}>
-                        {gunRandevulari.map((randevu) => {
-                            const tipRenk = TIP_COLORS[randevu.tip] ?? TIP_COLORS["Diğer"];
-                            const durumRenk = DURUM_COLORS[randevu.durum ?? "bekliyor"] ?? DURUM_COLORS["bekliyor"];
-                            const onayModu = silOnayId === randevu.id;
-                            const tamamlandi = randevu.durum === "tamamlandı";
-                            return (
-                                <View key={randevu.id} style={styles.card}>
-                                    <View style={[styles.cardStripe, { backgroundColor: tipRenk.text }]} />
-                                    <View style={styles.cardContent}>
-                                        {/* Üst: avatar + isim + saat */}
-                                        <View style={styles.cardTop}>
-                                            <View style={[styles.avatar, { backgroundColor: tipRenk.bg }]}>
-                                                <Text style={[styles.avatarText, { color: tipRenk.text }]}>
-                                                    {(randevu.hastaAdSoyad ?? "?")
-                                                        .split(" ").slice(0, 2)
-                                                        .map((w: string) => w.charAt(0))
-                                                        .join("").toUpperCase()}
-                                                </Text>
-                                            </View>
-                                            <Text style={styles.cardPatient} numberOfLines={1}>
-                                                {randevu.hastaAdSoyad ?? `Hasta #${randevu.hastaId}`}
-                                            </Text>
-                                            <View style={[styles.saatBadge, { backgroundColor: tipRenk.bg }]}>
-                                                <Ionicons name="time-outline" size={11} color={tipRenk.text} />
-                                                <Text style={[styles.saatBadgeText, { color: tipRenk.text }]}>
-                                                    {randevu.saat}
-                                                </Text>
-                                            </View>
-                                        </View>
-
-                                        {/* Alt: etiketler + butonlar aynı satırda */}
-                                        <View style={styles.cardBottom}>
-                                            <View style={styles.cardTags}>
-                                                <View style={[styles.tag, { backgroundColor: tipRenk.bg }]}>
-                                                    <Text style={[styles.tagText, { color: tipRenk.text }]}>{randevu.tip}</Text>
-                                                </View>
-                                                <View style={[styles.tag, { backgroundColor: durumRenk.bg }]}>
-                                                    <Text style={[styles.tagText, { color: durumRenk.text }]}>
-                                                        {randevu.durum ?? "bekliyor"}
-                                                    </Text>
-                                                </View>
-                                            </View>
-
-                                            {/* Küçük ikon butonlar — etiketlerin yanında */}
-                                            <View style={styles.cardActions}>
-                                                <TouchableOpacity
-                                                    style={[styles.actionBtn,
-                                                        { backgroundColor: tamamlandi ? "#D1FAE5" : "#F1F5F9" }]}
-                                                    onPress={() => handleOnayla(randevu.id!)}
-                                                    activeOpacity={0.6}
-                                                >
-                                                    <Ionicons
-                                                        name={tamamlandi ? "checkmark-circle" : "checkmark-circle-outline"}
-                                                        size={18}
-                                                        color={tamamlandi ? COLORS.success : COLORS.muted}
-                                                    />
-                                                </TouchableOpacity>
-                                                <TouchableOpacity
-                                                    style={[styles.actionBtn,
-                                                        { backgroundColor: onayModu ? "#FEE2E2" : "#F1F5F9" }]}
-                                                    onPress={() => handleSilBasin(randevu.id!)}
-                                                    activeOpacity={0.6}
-                                                >
-                                                    <Ionicons
-                                                        name={onayModu ? "trash" : "trash-outline"}
-                                                        size={16}
-                                                        color={onayModu ? COLORS.danger : COLORS.muted}
-                                                    />
-                                                </TouchableOpacity>
-                                            </View>
-                                        </View>
-
-                                        {randevu.notlar ? (
-                                            <Text style={styles.cardNote} numberOfLines={1}>{randevu.notlar}</Text>
-                                        ) : null}
+                        {Object.entries(
+                            tumRandevular
+                                .slice()
+                                .sort((a, b) => `${a.tarih}${a.saat}`.localeCompare(`${b.tarih}${b.saat}`))
+                                .reduce<Record<string, Randevu[]>>((acc, r) => {
+                                    (acc[r.tarih] = acc[r.tarih] ?? []).push(r);
+                                    return acc;
+                                }, {})
+                        ).map(([tarih, gunluk]) => (
+                            <View key={tarih}>
+                                <View style={styles.grupBaslik}>
+                                    <Text style={styles.grupTarih}>
+                                        {tarih === formatDate(new Date()) ? "Bugün" : displayDate(tarih)}
+                                    </Text>
+                                    <View style={styles.grupBadge}>
+                                        <Text style={styles.grupBadgeText}>{gunluk.length}</Text>
                                     </View>
                                 </View>
-                            );
-                        })}
+                                {gunluk.map((randevu) => renderKart(randevu))}
+                            </View>
+                        ))}
+                    </View>
+                ) : (
+                    // ── Gün görünümü: seçili günün randevuları ──
+                    <View style={styles.appointmentList}>
+                        {gunRandevulari.map((randevu) => renderKart(randevu))}
                     </View>
                 )}
             </ScrollView>
@@ -431,4 +471,19 @@ const styles = StyleSheet.create({
     cardNote: { fontSize: 11, color: COLORS.muted },
     cardActions: { flexDirection: "row", gap: 6 },
     actionBtn: { width: 30, height: 30, borderRadius: 8, justifyContent: "center", alignItems: "center" },
+    iconBtn: {
+        width: 36, height: 36, borderRadius: 10,
+        backgroundColor: "#F1F5F9",
+        justifyContent: "center", alignItems: "center",
+    },
+    grupBaslik: {
+        flexDirection: "row", alignItems: "center", gap: 8,
+        paddingHorizontal: 4, paddingTop: 16, paddingBottom: 8,
+    },
+    grupTarih: { fontSize: 14, fontWeight: "700", color: COLORS.text },
+    grupBadge: {
+        backgroundColor: COLORS.primary, borderRadius: 10,
+        paddingHorizontal: 7, paddingVertical: 1,
+    },
+    grupBadgeText: { color: "#fff", fontSize: 11, fontWeight: "700" },
 });

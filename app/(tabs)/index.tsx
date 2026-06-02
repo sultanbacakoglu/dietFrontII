@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -14,7 +14,8 @@ import {
   View,
 } from "react-native";
 import { getHastalar, hastaEkle, Hasta } from "../../services/api";
-import { getRandevular } from "../../services/appointmentService";
+import { getRandevular, Randevu } from "../../services/appointmentService";
+import { TIP_COLORS, DURUM_COLORS } from "../../constants/theme";
 import { T } from "../../constants/theme";
 
 const COLORS = {
@@ -36,6 +37,7 @@ function getAvatarColor(id?: number) {
 export default function Dashboard() {
   const [hastalar, setHastalar] = useState<Hasta[]>([]);
   const [bugunRandevuSayisi, setBugunRandevuSayisi] = useState<number>(0);
+  const [yaklasanRandevular, setYaklasanRandevular] = useState<Randevu[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [formData, setFormData] = useState({
@@ -59,10 +61,15 @@ export default function Dashboard() {
       ]);
       setHastalar(hastalarData);
 
-      // Bugünün tarihiyle filtrele
       const bugun = new Date();
       const bugunStr = `${bugun.getFullYear()}-${String(bugun.getMonth() + 1).padStart(2, "0")}-${String(bugun.getDate()).padStart(2, "0")}`;
       setBugunRandevuSayisi(randevularData.filter((r) => r.tarih === bugunStr).length);
+
+      const yaklaşan = randevularData
+        .filter((r) => r.tarih >= bugunStr && r.durum !== "iptal")
+        .sort((a, b) => `${a.tarih}${a.saat}`.localeCompare(`${b.tarih}${b.saat}`))
+        .slice(0, 5);
+      setYaklasanRandevular(yaklaşan);
     } catch (error) {
       console.error("Veri çekme hatası:", error);
     } finally {
@@ -132,6 +139,52 @@ export default function Dashboard() {
             <Text style={styles.statLabel}>Bugünkü Randevu</Text>
           </View>
         </View>
+
+        {/* Yaklaşan Randevular */}
+        {yaklasanRandevular.length > 0 && (
+          <View style={styles.yaklasanSection}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Yaklaşan Randevular</Text>
+              <TouchableOpacity onPress={() => router.push("/(tabs)/calendar")}>
+                <Text style={styles.tumunuGor}>Tümünü gör</Text>
+              </TouchableOpacity>
+            </View>
+            {yaklasanRandevular.map((r) => {
+              const tipRenk = TIP_COLORS[r.tip] ?? TIP_COLORS["Diğer"];
+              const durumRenk = DURUM_COLORS[r.durum ?? "bekliyor"] ?? DURUM_COLORS["bekliyor"];
+              const bugun = new Date();
+              const bugunStr = `${bugun.getFullYear()}-${String(bugun.getMonth() + 1).padStart(2, "0")}-${String(bugun.getDate()).padStart(2, "0")}`;
+              const etiket = r.tarih === bugunStr ? "Bugün" : r.tarih.slice(5).replace("-", "/");
+              return (
+                <TouchableOpacity
+                  key={r.id}
+                  style={styles.randevuKart}
+                  onPress={() => router.push({ pathname: "/appointments/edit", params: { id: String(r.id) } })}
+                  activeOpacity={0.8}
+                >
+                  <View style={[styles.randevuStripe, { backgroundColor: tipRenk.text }]} />
+                  <View style={[styles.randevuAvatar, { backgroundColor: tipRenk.bg }]}>
+                    <Text style={[styles.randevuAvatarText, { color: tipRenk.text }]}>
+                      {(r.hastaAdSoyad ?? "?").split(" ").slice(0, 2).map((w: string) => w[0]).join("").toUpperCase()}
+                    </Text>
+                  </View>
+                  <View style={styles.randevuBilgi}>
+                    <Text style={styles.randevuHasta} numberOfLines={1}>{r.hastaAdSoyad}</Text>
+                    <Text style={styles.randevuAlt}>{r.tip}</Text>
+                  </View>
+                  <View style={styles.randevuSag}>
+                    <Text style={[styles.randevuTarih, r.tarih === bugunStr && { color: T.primary, fontWeight: "700" }]}>
+                      {etiket}
+                    </Text>
+                    <View style={[styles.randevuDurum, { backgroundColor: durumRenk.bg }]}>
+                      <Text style={[styles.randevuDurumText, { color: durumRenk.text }]}>{r.saat}</Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
 
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Hastalarım</Text>
@@ -506,4 +559,33 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
+  yaklasanSection: { marginBottom: 8 },
+  tumunuGor: { fontSize: 13, color: T.primary, fontWeight: "600" },
+  randevuKart: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: T.card,
+    borderRadius: 14,
+    marginBottom: 8,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1,
+  },
+  randevuStripe: { width: 4, alignSelf: "stretch" },
+  randevuAvatar: {
+    width: 40, height: 40, borderRadius: 20,
+    justifyContent: "center", alignItems: "center",
+    marginHorizontal: 12,
+  },
+  randevuAvatarText: { fontSize: 14, fontWeight: "800" },
+  randevuBilgi: { flex: 1, paddingVertical: 12 },
+  randevuHasta: { fontSize: 14, fontWeight: "700", color: T.text, marginBottom: 2 },
+  randevuAlt: { fontSize: 12, color: T.textSec },
+  randevuSag: { alignItems: "flex-end", paddingRight: 14, gap: 4 },
+  randevuTarih: { fontSize: 12, color: T.textSec },
+  randevuDurum: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 },
+  randevuDurumText: { fontSize: 12, fontWeight: "700" },
 });
