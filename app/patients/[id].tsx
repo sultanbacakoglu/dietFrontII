@@ -155,6 +155,28 @@ export default function PatientDetailScreen() {
           </View>
         </View>
 
+        {/* Diyet Planı Ata */}
+        <View style={styles.section}>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <Text style={styles.sectionTitle}>Diyet Planları</Text>
+            <TouchableOpacity
+              style={{ flexDirection: "row", alignItems: "center", gap: 6, backgroundColor: T.successLight, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 10 }}
+              onPress={() => router.push({ pathname: "/diet/create", params: { hastaId: String(hasta.id) } })}
+            >
+              <Ionicons name="add" size={16} color={T.success} />
+              <Text style={{ fontSize: 13, fontWeight: "700", color: T.success }}>Plan Ata</Text>
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity
+            style={{ flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: T.bg, borderRadius: 12, padding: 14, borderWidth: 1.5, borderColor: T.border }}
+            onPress={() => router.push({ pathname: "/(tabs)/diet" })}
+          >
+            <Ionicons name="nutrition-outline" size={20} color={T.success} />
+            <Text style={{ flex: 1, fontSize: 14, color: T.textSec }}>Bu hastanın tüm diyet planlarını gör</Text>
+            <Ionicons name="chevron-forward" size={16} color={T.border} />
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Kişisel Bilgiler</Text>
           <View style={styles.card}>

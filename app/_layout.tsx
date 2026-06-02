@@ -9,6 +9,8 @@ export default function RootLayout() {
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="appointments/create" />
       <Stack.Screen name="appointments/edit" />
+      <Stack.Screen name="diet/create" />
+      <Stack.Screen name="diet/[id]" />
     </Stack>
   );
 }

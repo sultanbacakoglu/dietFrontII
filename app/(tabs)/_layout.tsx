@@ -68,6 +68,24 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="diet"
+        options={{
+          title: "Diyet",
+          tabBarIcon: ({ color, focused }) => (
+            <View style={styles.tabItem}>
+              <View style={[styles.iconBox, focused && { backgroundColor: "#D1FAE5" }]}>
+                <Ionicons
+                  name={focused ? "nutrition" : "nutrition-outline"}
+                  size={22}
+                  color={focused ? T.success : color}
+                />
+              </View>
+              {focused && <View style={[styles.activeDot, { backgroundColor: T.success }]} />}
+            </View>
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: "Profil",
