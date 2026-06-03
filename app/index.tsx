@@ -18,17 +18,20 @@ export default function RootIndex() {
             }
 
             try {
-                const response = await fetch(`${API_URL}/hastalar`, {
+                const response = await fetch(`${API_URL}/auth/me`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 if (response.ok) {
                     setHasToken(true);
                 } else {
+                    // Token geçersiz, sil ve login'e git
                     await AsyncStorage.multiRemove(["auth_token", "user_id", "user_name"]);
                     setHasToken(false);
                 }
             } catch {
-                setHasToken(true);
+                // Backend'e ulaşılamıyor: token'ı temizle, login ekranına git
+                await AsyncStorage.multiRemove(["auth_token", "user_id", "user_name"]);
+                setHasToken(false);
             }
 
             setLoading(false);

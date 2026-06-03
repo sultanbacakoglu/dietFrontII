@@ -29,6 +29,21 @@ const getAuthHeaders = async () => {
     };
 };
 
+export const hastaAra = async (q: string): Promise<Hasta[]> => {
+    try {
+        const token = await AsyncStorage.getItem("auth_token");
+        const headers = {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        };
+        const response = await fetch(`${API_URL}/hastalar/ara?q=${encodeURIComponent(q)}`, { headers });
+        if (!response.ok) throw new Error();
+        return await response.json();
+    } catch {
+        return [];
+    }
+};
+
 export const getHastalar = async (): Promise<Hasta[]> => {
     try {
         const headers = await getAuthHeaders();

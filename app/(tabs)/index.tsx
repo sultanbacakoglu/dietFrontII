@@ -13,7 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { getHastalar, hastaEkle, Hasta } from "../../services/api";
+import { getHastalar, hastaEkle, hastaAra, Hasta } from "../../services/api";
 import { getRandevular, Randevu } from "../../services/appointmentService";
 import { TIP_COLORS, DURUM_COLORS } from "../../constants/theme";
 import { T } from "../../constants/theme";
@@ -36,6 +36,9 @@ function getAvatarColor(id?: number) {
 
 export default function Dashboard() {
   const [hastalar, setHastalar] = useState<Hasta[]>([]);
+  const [aramaMetni, setAramaMetni] = useState("");
+  const [aramaYukleniyor, setAramaYukleniyor] = useState(false);
+  const [araSonuclari, setAraSonuclari] = useState<Hasta[] | null>(null);
   const [bugunRandevuSayisi, setBugunRandevuSayisi] = useState<number>(0);
   const [yaklasanRandevular, setYaklasanRandevular] = useState<Randevu[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,9 +52,21 @@ export default function Dashboard() {
   const [saving, setSaving] = useState(false);
   const router = useRouter();
 
+  useEffect(() => { fetchData(); }, []);
+
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (aramaMetni.trim().length < 2) {
+      setAraSonuclari(null);
+      return;
+    }
+    setAramaYukleniyor(true);
+    const timer = setTimeout(async () => {
+      const sonuclar = await hastaAra(aramaMetni.trim());
+      setAraSonuclari(sonuclar);
+      setAramaYukleniyor(false);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [aramaMetni]);
 
   const fetchData = async () => {
     try {
@@ -197,7 +212,47 @@ export default function Dashboard() {
           </TouchableOpacity>
         </View>
 
-        {hastalar.length === 0 ? (
+        {/* Hasta Arama */}
+        <View style={styles.searchBox}>
+          <Ionicons name="search-outline" size={16} color={T.textSec} />
+          <TextInput
+            style={styles.searchBoxInput}
+            placeholder="Ad, soyad veya e-posta ile ara..."
+            placeholderTextColor={T.textMuted}
+            value={aramaMetni}
+            onChangeText={setAramaMetni}
+            clearButtonMode="while-editing"
+          />
+          {aramaYukleniyor && <ActivityIndicator size="small" color={T.primary} />}
+        </View>
+
+        {araSonuclari !== null ? (
+          <View style={styles.patientList}>
+            {araSonuclari.length === 0 ? (
+              <View style={[styles.emptyState, { paddingVertical: 24 }]}>
+                <Ionicons name="search-outline" size={32} color={T.textMuted} />
+                <Text style={[styles.emptyText, { marginTop: 8 }]}>Sonuç bulunamadı</Text>
+              </View>
+            ) : araSonuclari.map((hasta) => (
+              <TouchableOpacity
+                key={hasta.id}
+                style={styles.patientCard}
+                onPress={() => router.push(`/patients/${hasta.id}`)}
+              >
+                <View style={[styles.patientAvatar, { backgroundColor: getAvatarColor(hasta.id) }]}>
+                  <Text style={[styles.patientInitial, { color: COLORS.primary }]}>
+                    {hasta.adSoyad.charAt(0).toUpperCase()}
+                  </Text>
+                </View>
+                <View style={styles.patientInfo}>
+                  <Text style={styles.patientName}>{hasta.adSoyad}</Text>
+                  <Text style={styles.patientEmail}>{hasta.eposta}</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
+              </TouchableOpacity>
+            ))}
+          </View>
+        ) : hastalar.length === 0 ? (
           <View style={styles.emptyState}>
             <View style={[styles.emptyIcon, { backgroundColor: "#F3E8FF" }]}>
               <Ionicons name="people-outline" size={48} color={COLORS.purple} />
@@ -559,6 +614,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
+  searchBox: {
+    flexDirection: "row", alignItems: "center", gap: 8,
+    backgroundColor: T.card, borderRadius: 12,
+    borderWidth: 1.5, borderColor: T.border,
+    paddingHorizontal: 12, paddingVertical: 10,
+    marginBottom: 12,
+  },
+  searchBoxInput: { flex: 1, fontSize: 14, color: T.text },
   yaklasanSection: { marginBottom: 8 },
   tumunuGor: { fontSize: 13, color: T.primary, fontWeight: "600" },
   randevuKart: {

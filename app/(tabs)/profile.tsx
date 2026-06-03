@@ -1,8 +1,13 @@
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, Alert } from "react-native";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useState } from "react";
+import { Modal, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { T } from "../../constants/theme";
+import { getMe, Profil } from "../../services/authService";
+import { getHastalar } from "../../services/api";
+import { getRandevular } from "../../services/appointmentService";
+import { getDiyetPlanlari } from "../../services/dietService";
 
 const COLORS = {
   primary: T.primary,
@@ -12,39 +17,28 @@ const COLORS = {
   purple: T.purple,
 };
 
-const menuItems = [
-  { icon: "person-outline", label: "Profili Düzenle", color: T.primaryLight, iconColor: T.primary },
-  { icon: "notifications-outline", label: "Bildirimler", color: T.warningLight, iconColor: T.warning },
-  { icon: "lock-closed-outline", label: "Gizlilik", color: T.successLight, iconColor: T.success },
-  { icon: "help-circle-outline", label: "Yardım", color: "#E0E7FF", iconColor: T.purple },
-  { icon: "document-text-outline", label: "Kullanım Koşulları", color: T.dangerLight, iconColor: T.danger },
-  { icon: "information-circle-outline", label: "Hakkında", color: T.purpleLight, iconColor: "#9333EA" },
-];
-
 export default function ProfileScreen() {
   const router = useRouter();
+  const [profil, setProfil] = useState<Profil | null>(null);
+  const [logoutModal, setLogoutModal] = useState(false);
+  const [istatistik, setIstatistik] = useState({ hasta: 0, randevu: 0, plan: 0 });
 
-  const handleLogout = () => {
-    Alert.alert(
-      "Çıkış Yap",
-      "Hesabınızdan çıkmak istediğinize emin misiniz?",
-      [
-        { text: "İptal", style: "cancel" },
-        {
-          text: "Çıkış Yap",
-          style: "destructive",
-          onPress: async () => {
-            await AsyncStorage.multiRemove(["auth_token", "user_id", "user_name"]);
-            router.replace("/(auth)/login");
-          },
-        },
-      ]
-    );
+  useFocusEffect(useCallback(() => {
+    getMe().then(setProfil);
+    Promise.all([getHastalar(), getRandevular(), getDiyetPlanlari()]).then(([h, r, p]) => {
+      setIstatistik({ hasta: h.length, randevu: r.length, plan: p.length });
+    });
+  }, []));
+
+  const handleLogoutConfirm = async () => {
+    setLogoutModal(false);
+    await AsyncStorage.multiRemove(["auth_token", "user_id", "user_name"]);
+    router.replace("/(auth)/login");
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Text style={styles.greeting}>Hesap</Text>
           <Text style={styles.title}>Profil</Text>
@@ -59,10 +53,10 @@ export default function ProfileScreen() {
               <Ionicons name="camera" size={16} color="#fff" />
             </TouchableOpacity>
           </View>
-          <Text style={styles.userName}>Diyetisyen</Text>
+          <Text style={styles.userName}>{profil?.adSoyad ?? "Diyetisyen"}</Text>
           <View style={styles.emailBadge}>
             <Ionicons name="mail" size={14} color="#64748B" />
-            <Text style={styles.emailText}>diyetisyen@example.com</Text>
+            <Text style={styles.emailText}>{profil?.eposta ?? "—"}</Text>
           </View>
           <View style={styles.badge}>
             <Ionicons name="checkmark-circle" size={14} color={COLORS.success} />
@@ -72,46 +66,97 @@ export default function ProfileScreen() {
 
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>24</Text>
+            <Text style={styles.statNumber}>{istatistik.hasta}</Text>
             <Text style={styles.statLabel}>Hasta</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>156</Text>
+            <Text style={styles.statNumber}>{istatistik.randevu}</Text>
             <Text style={styles.statLabel}>Randevu</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>4.8</Text>
-            <Text style={styles.statLabel}>Puan</Text>
+            <Text style={styles.statNumber}>{istatistik.plan}</Text>
+            <Text style={styles.statLabel}>Diyet Planı</Text>
           </View>
         </View>
 
         <View style={styles.menuSection}>
-          <Text style={styles.sectionTitle}>Ayarlar</Text>
+          <Text style={styles.sectionTitle}>Hesap</Text>
           <View style={styles.menuCard}>
-            {menuItems.map((item, index) => (
-              <TouchableOpacity 
-                key={index} 
-                style={[styles.menuItem, index !== menuItems.length - 1 && styles.menuItemBorder]}
-              >
-                <View style={[styles.menuIcon, { backgroundColor: item.color }]}>
-                  <Ionicons name={item.icon as any} size={20} color={item.iconColor} />
-                </View>
-                <Text style={styles.menuLabel}>{item.label}</Text>
-                <Ionicons name="chevron-forward" size={20} color="#CBD5E1" />
-              </TouchableOpacity>
-            ))}
+            <TouchableOpacity
+              style={[styles.menuItem, styles.menuItemBorder]}
+              onPress={() => router.push("/profile/edit")}
+            >
+              <View style={[styles.menuIcon, { backgroundColor: T.primaryLight }]}>
+                <Ionicons name="person-outline" size={20} color={T.primary} />
+              </View>
+              <Text style={styles.menuLabel}>Profili Düzenle</Text>
+              <Ionicons name="chevron-forward" size={20} color="#CBD5E1" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.menuItem, styles.menuItemBorder]}
+              onPress={() => router.push("/profile/edit")}
+            >
+              <View style={[styles.menuIcon, { backgroundColor: T.warningLight }]}>
+                <Ionicons name="lock-closed-outline" size={20} color={T.warning} />
+              </View>
+              <Text style={styles.menuLabel}>Şifre Değiştir</Text>
+              <Ionicons name="chevron-forward" size={20} color="#CBD5E1" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem}>
+              <View style={[styles.menuIcon, { backgroundColor: T.primaryLight }]}>
+                <Ionicons name="information-circle-outline" size={20} color={T.primary} />
+              </View>
+              <Text style={styles.menuLabel}>Hakkında</Text>
+              <Ionicons name="chevron-forward" size={20} color="#CBD5E1" />
+            </TouchableOpacity>
           </View>
         </View>
 
-        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+        <TouchableOpacity
+          style={styles.logoutBtn}
+          onPress={() => setLogoutModal(true)}
+          activeOpacity={0.7}
+        >
           <Ionicons name="log-out-outline" size={22} color={COLORS.danger} />
           <Text style={styles.logoutText}>Çıkış Yap</Text>
         </TouchableOpacity>
 
         <Text style={styles.version}>Versiyon 1.0.0</Text>
       </ScrollView>
+
+      {/* Çıkış Onay Modalı */}
+      <Modal
+        visible={logoutModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setLogoutModal(false)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setLogoutModal(false)}>
+          <Pressable style={styles.modalBox} onPress={(e) => e.stopPropagation()}>
+            <View style={styles.modalIcon}>
+              <Ionicons name="log-out-outline" size={32} color={COLORS.danger} />
+            </View>
+            <Text style={styles.modalTitle}>Çıkış Yap</Text>
+            <Text style={styles.modalDesc}>Hesabınızdan çıkmak istediğinize emin misiniz?</Text>
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={[styles.modalBtn, styles.modalBtnCancel]}
+                onPress={() => setLogoutModal(false)}
+              >
+                <Text style={styles.modalBtnCancelText}>İptal</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalBtn, styles.modalBtnConfirm]}
+                onPress={handleLogoutConfirm}
+              >
+                <Text style={styles.modalBtnConfirmText}>Çıkış Yap</Text>
+              </TouchableOpacity>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -300,5 +345,69 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: T.textMuted,
     marginBottom: 100,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 32,
+  },
+  modalBox: {
+    backgroundColor: T.card,
+    borderRadius: 20,
+    padding: 24,
+    width: "100%",
+    maxWidth: 360,
+    alignItems: "center",
+  },
+  modalIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: T.dangerLight,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: T.text,
+    marginBottom: 8,
+  },
+  modalDesc: {
+    fontSize: 14,
+    color: T.textSec,
+    textAlign: "center",
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+  modalActions: {
+    flexDirection: "row",
+    gap: 10,
+    width: "100%",
+  },
+  modalBtn: {
+    flex: 1,
+    paddingVertical: 13,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  modalBtnCancel: {
+    backgroundColor: "#F1F5F9",
+  },
+  modalBtnCancelText: {
+    color: T.text,
+    fontWeight: "600",
+    fontSize: 15,
+  },
+  modalBtnConfirm: {
+    backgroundColor: T.danger,
+  },
+  modalBtnConfirmText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 15,
   },
 });

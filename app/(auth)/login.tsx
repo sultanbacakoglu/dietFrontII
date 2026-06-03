@@ -12,6 +12,7 @@ import {
     Platform,
 } from "react-native";
 import { MyInput } from "../../components/ui/MyInput";
+import { AlertModal, AlertType } from "../../components/ui/AlertModal";
 import { login } from "../../services/authService";
 import { T } from "../../constants/theme";
 
@@ -21,6 +22,12 @@ export default function LoginScreen() {
     const [sifre, setSifre] = useState("");
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<{ eposta?: string; sifre?: string }>({});
+    const [alert, setAlert] = useState<{ visible: boolean; type: AlertType; title: string; message?: string }>({
+        visible: false, type: "error", title: ""
+    });
+
+    const showAlert = (type: AlertType, title: string, message?: string) =>
+        setAlert({ visible: true, type, title, message });
 
     const validate = () => {
         const newErrors: { eposta?: string; sifre?: string } = {};
@@ -48,7 +55,14 @@ export default function LoginScreen() {
                 router.replace("/(tabs)");
             }
         } catch (error: any) {
-            Alert.alert("Hata", error.message || "Giriş yapılamadı");
+            const msg = (error.message || "").toLowerCase();
+            if (msg.includes("bağlan") || msg.includes("network") || msg.includes("abort")) {
+                showAlert("error", "Bağlantı Hatası", "Sunucuya bağlanılamadı. İnternet bağlantınızı kontrol edin ve tekrar deneyin.");
+            } else if (msg.includes("401") || msg.includes("403") || msg.includes("bad credentials") || msg.includes("unauthorized") || msg.includes("başarısız")) {
+                showAlert("error", "Giriş Başarısız", "E-posta adresiniz veya şifreniz hatalı. Lütfen kontrol edip tekrar deneyin.");
+            } else {
+                showAlert("error", "Giriş Başarısız", "E-posta adresiniz veya şifreniz hatalı. Lütfen kontrol edip tekrar deneyin.");
+            }
         } finally {
             setLoading(false);
         }
@@ -117,6 +131,13 @@ export default function LoginScreen() {
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
+            <AlertModal
+                visible={alert.visible}
+                type={alert.type}
+                title={alert.title}
+                message={alert.message}
+                onClose={() => setAlert({ ...alert, visible: false })}
+            />
         </SafeAreaView>
     );
 }

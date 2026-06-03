@@ -75,3 +75,50 @@ export const getUserId = async (): Promise<string | null> => {
 export const getUserName = async (): Promise<string | null> => {
     return await AsyncStorage.getItem(KEYS.USER_NAME);
 };
+
+export interface Profil {
+    id: number;
+    adSoyad: string;
+    eposta: string;
+}
+
+const authHeaders = async () => {
+    const token = await AsyncStorage.getItem(KEYS.TOKEN);
+    return {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+};
+
+export const getMe = async (): Promise<Profil | null> => {
+    try {
+        const response = await fetch(`${API_URL}/auth/me`, { headers: await authHeaders() });
+        if (!response.ok) throw new Error();
+        return await response.json();
+    } catch {
+        return null;
+    }
+};
+
+export const updateProfile = async (data: {
+    adSoyad?: string;
+    mevcutSifre?: string;
+    yeniSifre?: string;
+}): Promise<{ ok: boolean; mesaj?: string }> => {
+    try {
+        const response = await fetch(`${API_URL}/auth/me`, {
+            method: "PUT",
+            headers: await authHeaders(),
+            body: JSON.stringify(data),
+        });
+        if (!response.ok) {
+            const text = await response.text();
+            return { ok: false, mesaj: text || "Güncelleme başarısız" };
+        }
+        const profil: Profil = await response.json();
+        await AsyncStorage.setItem(KEYS.USER_NAME, profil.adSoyad);
+        return { ok: true };
+    } catch {
+        return { ok: false, mesaj: "Sunucuya bağlanılamadı" };
+    }
+};
