@@ -12,6 +12,7 @@ export default function RootLayout() {
       <Stack.Screen name="diet/create" />
       <Stack.Screen name="diet/[id]" />
       <Stack.Screen name="profile/edit" />
+      <Stack.Screen name="patients/edit" />
     </Stack>
   );
 }

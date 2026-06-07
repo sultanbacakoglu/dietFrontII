@@ -40,6 +40,7 @@ export default function Dashboard() {
   const [aramaYukleniyor, setAramaYukleniyor] = useState(false);
   const [araSonuclari, setAraSonuclari] = useState<Hasta[] | null>(null);
   const [bugunRandevuSayisi, setBugunRandevuSayisi] = useState<number>(0);
+  const [toplamRandevuSayisi, setToplamRandevuSayisi] = useState<number>(0);
   const [yaklasanRandevular, setYaklasanRandevular] = useState<Randevu[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
@@ -79,6 +80,7 @@ export default function Dashboard() {
       const bugun = new Date();
       const bugunStr = `${bugun.getFullYear()}-${String(bugun.getMonth() + 1).padStart(2, "0")}-${String(bugun.getDate()).padStart(2, "0")}`;
       setBugunRandevuSayisi(randevularData.filter((r) => r.tarih === bugunStr).length);
+      setToplamRandevuSayisi(randevularData.length);
 
       const yaklaşan = randevularData
         .filter((r) => r.tarih >= bugunStr && r.durum !== "iptal")
@@ -150,8 +152,15 @@ export default function Dashboard() {
             <View style={[styles.statIcon, { backgroundColor: "#ECFDF5" }]}>
               <Ionicons name="calendar" size={22} color={COLORS.success} />
             </View>
+            <Text style={styles.statNumber}>{toplamRandevuSayisi}</Text>
+            <Text style={styles.statLabel}>Toplam Randevu</Text>
+          </View>
+          <View style={[styles.statCard, { borderLeftColor: COLORS.warning }]}>
+            <View style={[styles.statIcon, { backgroundColor: "#FEF3C7" }]}>
+              <Ionicons name="today" size={22} color={COLORS.warning} />
+            </View>
             <Text style={styles.statNumber}>{bugunRandevuSayisi}</Text>
-            <Text style={styles.statLabel}>Bugünkü Randevu</Text>
+            <Text style={styles.statLabel}>Bugünkü</Text>
           </View>
         </View>
 
@@ -416,14 +425,14 @@ const styles = StyleSheet.create({
   },
   statsRow: {
     flexDirection: "row",
-    gap: 12,
+    gap: 10,
     marginBottom: 16,
   },
   statCard: {
     flex: 1,
     backgroundColor: T.card,
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 14,
+    padding: 12,
     borderLeftWidth: 4,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -432,22 +441,23 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   statIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+    width: 34,
+    height: 34,
+    borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 8,
   },
   statNumber: {
-    fontSize: 28,
+    fontSize: 22,
     fontWeight: "700",
     color: T.text,
     marginBottom: 2,
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: 11,
     color: T.textSec,
+    fontWeight: "500",
   },
   sectionHeader: {
     flexDirection: "row",

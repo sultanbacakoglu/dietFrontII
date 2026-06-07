@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -32,16 +32,13 @@ export default function PatientDetailScreen() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchHasta = async () => {
-      if (id) {
-        const data = await getHastaById(Number(id));
-        setHasta(data);
-      }
+  useFocusEffect(useCallback(() => {
+    if (!id) { setLoading(false); return; }
+    getHastaById(Number(id)).then((data) => {
+      setHasta(data);
       setLoading(false);
-    };
-    fetchHasta();
-  }, [id]);
+    });
+  }, [id]));
 
   const handleSil = () => {
     Alert.alert(
@@ -113,9 +110,17 @@ export default function PatientDetailScreen() {
           <Ionicons name="arrow-back" size={24} color={T.textSec} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Hasta Detay</Text>
-        <TouchableOpacity onPress={handleSil} style={styles.deleteBtn}>
-          <Ionicons name="trash-outline" size={24} color={COLORS.danger} />
-        </TouchableOpacity>
+        <View style={{ flexDirection: "row", gap: 8 }}>
+          <TouchableOpacity
+            onPress={() => router.push({ pathname: "/patients/edit", params: { id: String(hasta.id) } })}
+            style={[styles.deleteBtn, { backgroundColor: T.primaryLight }]}
+          >
+            <Ionicons name="create-outline" size={22} color={COLORS.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleSil} style={styles.deleteBtn}>
+            <Ionicons name="trash-outline" size={24} color={COLORS.danger} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
