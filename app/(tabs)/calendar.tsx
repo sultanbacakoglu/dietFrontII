@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     ActivityIndicator,
     RefreshControl,
@@ -12,19 +12,9 @@ import {
     View,
 } from "react-native";
 import { getRandevular, randevuSil, randevuGuncelle, Randevu } from "../../services/appointmentService";
-import { T, TIP_COLORS, DURUM_COLORS } from "../../constants/theme";
+import { useTheme } from "../../contexts/ThemeContext";
+import { Theme } from "../../constants/theme";
 
-const COLORS = {
-    primary: T.primary,
-    success: T.success,
-    warning: T.warning,
-    danger: T.danger,
-    bg: T.bg,
-    card: T.card,
-    text: T.text,
-    muted: T.textSec,
-    border: T.border,
-};
 
 const DAY_NAMES_SHORT = ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"];
 const MONTHS = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
@@ -54,6 +44,9 @@ function getWeekDays(anchor: Date): Date[] {
 }
 
 export default function CalendarScreen() {
+    const { T, TIP_COLORS, DURUM_COLORS } = useTheme();
+    const COLORS = T;
+    const styles = useMemo(() => createStyles(T), [T]);
     const router = useRouter();
     const { initialTarih } = useLocalSearchParams<{ initialTarih?: string }>();
 
@@ -193,7 +186,7 @@ export default function CalendarScreen() {
                                 <Ionicons
                                     name={tamamlandi ? "checkmark-circle" : "checkmark-circle-outline"}
                                     size={18}
-                                    color={tamamlandi ? COLORS.success : COLORS.muted}
+                                    color={tamamlandi ? COLORS.success : T.textSec}
                                 />
                             </TouchableOpacity>
                             <TouchableOpacity
@@ -204,7 +197,7 @@ export default function CalendarScreen() {
                                 <Ionicons
                                     name={onayModu ? "trash" : "trash-outline"}
                                     size={16}
-                                    color={onayModu ? COLORS.danger : COLORS.muted}
+                                    color={onayModu ? COLORS.danger : T.textSec}
                                 />
                             </TouchableOpacity>
                         </View>
@@ -249,7 +242,7 @@ export default function CalendarScreen() {
             {/* Hafta Seçici */}
             <View style={styles.weekContainer}>
                 <TouchableOpacity onPress={handleHaftaGeri} style={styles.weekNavBtn}>
-                    <Ionicons name="chevron-back" size={18} color={COLORS.muted} />
+                    <Ionicons name="chevron-back" size={18} color={T.textSec} />
                 </TouchableOpacity>
                 <View style={styles.weekDays}>
                     {weekDays.map((day, i) => {
@@ -280,7 +273,7 @@ export default function CalendarScreen() {
                     })}
                 </View>
                 <TouchableOpacity onPress={handleHaftaIleri} style={styles.weekNavBtn}>
-                    <Ionicons name="chevron-forward" size={18} color={COLORS.muted} />
+                    <Ionicons name="chevron-forward" size={18} color={T.textSec} />
                 </TouchableOpacity>
             </View>
 
@@ -309,7 +302,7 @@ export default function CalendarScreen() {
                 ) : gunRandevulari.length === 0 ? (
                     <View style={styles.emptyState}>
                         <View style={styles.emptyIcon}>
-                            <Ionicons name="calendar-outline" size={40} color={COLORS.muted} />
+                            <Ionicons name="calendar-outline" size={40} color={T.textSec} />
                         </View>
                         <Text style={styles.emptyTitle}>Randevu Yok</Text>
                         <Text style={styles.emptyDesc}>
@@ -359,8 +352,8 @@ export default function CalendarScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: COLORS.bg },
+const createStyles = (T: Theme) => StyleSheet.create({
+    container: { flex: 1, backgroundColor: T.bg },
     header: {
         flexDirection: "row",
         justifyContent: "space-between",
@@ -368,18 +361,18 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingTop: 16,
         paddingBottom: 14,
-        backgroundColor: COLORS.card,
+        backgroundColor: T.card,
     },
-    headerSub: { fontSize: 13, color: COLORS.muted, marginBottom: 2 },
-    headerTitle: { fontSize: 22, fontWeight: "700", color: COLORS.text },
+    headerSub: { fontSize: 13, color: T.textSec, marginBottom: 2 },
+    headerTitle: { fontSize: 22, fontWeight: "700", color: T.text },
     addBtn: {
         width: 44,
         height: 44,
         borderRadius: 22,
-        backgroundColor: COLORS.primary,
+        backgroundColor: T.primary,
         justifyContent: "center",
         alignItems: "center",
-        shadowColor: COLORS.primary,
+        shadowColor: T.primary,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,
@@ -388,13 +381,13 @@ const styles = StyleSheet.create({
     weekContainer: {
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: COLORS.card,
+        backgroundColor: T.card,
         paddingHorizontal: 8,
         paddingBottom: 12,
         borderBottomWidth: 1,
-        borderBottomColor: COLORS.border,
+        borderBottomColor: T.border,
     },
-    weekNavBtn: { padding: 8, borderRadius: 20, backgroundColor: COLORS.bg },
+    weekNavBtn: { padding: 8, borderRadius: 20, backgroundColor: T.bg },
     weekDays: { flex: 1, flexDirection: "row", justifyContent: "space-around" },
     dayBtn: {
         alignItems: "center",
@@ -403,10 +396,10 @@ const styles = StyleSheet.create({
         borderRadius: 14,
         minWidth: 38,
     },
-    dayBtnSelected: { backgroundColor: COLORS.primary },
-    dayLabel: { fontSize: 11, fontWeight: "600", color: COLORS.muted, marginBottom: 4 },
+    dayBtnSelected: { backgroundColor: T.primary },
+    dayLabel: { fontSize: 11, fontWeight: "600", color: T.textSec, marginBottom: 4 },
     dayLabelSelected: { color: "rgba(255,255,255,0.8)" },
-    dayNumber: { fontSize: 17, fontWeight: "700", color: COLORS.text },
+    dayNumber: { fontSize: 17, fontWeight: "700", color: T.text },
     dayNumberSelected: { color: "#fff" },
     dayDot: { width: 4, height: 4, borderRadius: 2, marginTop: 3 },
     listHeader: {
@@ -416,9 +409,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 14,
     },
-    listHeaderText: { fontSize: 16, fontWeight: "700", color: COLORS.text },
+    listHeaderText: { fontSize: 16, fontWeight: "700", color: T.text },
     countBadge: {
-        backgroundColor: COLORS.primary,
+        backgroundColor: T.primary,
         borderRadius: 10,
         paddingHorizontal: 8,
         paddingVertical: 2,
@@ -432,18 +425,18 @@ const styles = StyleSheet.create({
         backgroundColor: "#F1F5F9",
         justifyContent: "center", alignItems: "center", marginBottom: 16,
     },
-    emptyTitle: { fontSize: 18, fontWeight: "700", color: COLORS.text, marginBottom: 6 },
-    emptyDesc: { fontSize: 14, color: COLORS.muted, textAlign: "center", marginBottom: 24 },
+    emptyTitle: { fontSize: 18, fontWeight: "700", color: T.text, marginBottom: 6 },
+    emptyDesc: { fontSize: 14, color: T.textSec, textAlign: "center", marginBottom: 24 },
     emptyBtn: {
         flexDirection: "row", alignItems: "center", gap: 6,
-        backgroundColor: COLORS.primary,
+        backgroundColor: T.primary,
         paddingHorizontal: 20, paddingVertical: 12, borderRadius: 12,
     },
     emptyBtnText: { color: "#fff", fontWeight: "700", fontSize: 14 },
     appointmentList: { paddingHorizontal: 16, paddingBottom: 100, gap: 10 },
     card: {
         flexDirection: "row",
-        backgroundColor: COLORS.card,
+        backgroundColor: T.card,
         borderRadius: 16,
         alignItems: "stretch",
         shadowColor: "#000",
@@ -461,14 +454,14 @@ const styles = StyleSheet.create({
     cardTop: { flexDirection: "row", alignItems: "center", gap: 8 },
     avatar: { width: 32, height: 32, borderRadius: 16, justifyContent: "center", alignItems: "center" },
     avatarText: { fontSize: 12, fontWeight: "800" },
-    cardPatient: { flex: 1, fontSize: 14, fontWeight: "700", color: COLORS.text },
+    cardPatient: { flex: 1, fontSize: 14, fontWeight: "700", color: T.text },
     saatBadge: { flexDirection: "row", alignItems: "center", gap: 3, paddingHorizontal: 7, paddingVertical: 3, borderRadius: 8 },
     saatBadgeText: { fontSize: 12, fontWeight: "700" },
     cardBottom: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
     cardTags: { flexDirection: "row", gap: 5, flexWrap: "wrap", flex: 1 },
     tag: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: 5 },
     tagText: { fontSize: 11, fontWeight: "600" },
-    cardNote: { fontSize: 11, color: COLORS.muted },
+    cardNote: { fontSize: 11, color: T.textSec },
     cardActions: { flexDirection: "row", gap: 6 },
     actionBtn: { width: 30, height: 30, borderRadius: 8, justifyContent: "center", alignItems: "center" },
     iconBtn: {
@@ -480,9 +473,9 @@ const styles = StyleSheet.create({
         flexDirection: "row", alignItems: "center", gap: 8,
         paddingHorizontal: 4, paddingTop: 16, paddingBottom: 8,
     },
-    grupTarih: { fontSize: 14, fontWeight: "700", color: COLORS.text },
+    grupTarih: { fontSize: 14, fontWeight: "700", color: T.text },
     grupBadge: {
-        backgroundColor: COLORS.primary, borderRadius: 10,
+        backgroundColor: T.primary, borderRadius: 10,
         paddingHorizontal: 7, paddingVertical: 1,
     },
     grupBadgeText: { color: "#fff", fontSize: 11, fontWeight: "700" },

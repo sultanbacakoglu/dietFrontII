@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
     ActivityIndicator,
     SafeAreaView,
@@ -13,11 +13,14 @@ import {
 } from "react-native";
 import { getMe, updateProfile } from "../../services/authService";
 import { AlertModal, AlertType } from "../../components/ui/AlertModal";
-import { T } from "../../constants/theme";
+import { useTheme } from "../../contexts/ThemeContext";
+import { Theme } from "../../constants/theme";
 
-const C = { primary: T.primary, danger: T.danger, bg: T.bg, card: T.card, text: T.text, muted: T.textSec, border: T.border };
 
 export default function EditProfileScreen() {
+    const { T } = useTheme();
+    const C = T;
+    const styles = useMemo(() => createStyles(T), [T]);
     const router = useRouter();
 
     const [adSoyad, setAdSoyad] = useState("");
@@ -124,14 +127,14 @@ export default function EditProfileScreen() {
                         value={adSoyad}
                         onChangeText={setAdSoyad}
                         placeholder="Ad Soyad"
-                        placeholderTextColor={C.muted}
+                        placeholderTextColor={T.textSec}
                     />
                     <Text style={[styles.label, { marginTop: 14 }]}>E-posta</Text>
                     <TextInput
                         style={[styles.input, styles.inputDisabled]}
                         value={eposta}
                         editable={false}
-                        placeholderTextColor={C.muted}
+                        placeholderTextColor={T.textSec}
                     />
                     <Text style={styles.hint}>E-posta adresi değiştirilemez.</Text>
                 </View>
@@ -147,7 +150,7 @@ export default function EditProfileScreen() {
                         value={mevcutSifre}
                         onChangeText={setMevcutSifre}
                         placeholder="••••••••"
-                        placeholderTextColor={C.muted}
+                        placeholderTextColor={T.textSec}
                         secureTextEntry
                     />
 
@@ -157,7 +160,7 @@ export default function EditProfileScreen() {
                         value={yeniSifre}
                         onChangeText={setYeniSifre}
                         placeholder="En az 6 karakter"
-                        placeholderTextColor={C.muted}
+                        placeholderTextColor={T.textSec}
                         secureTextEntry
                     />
 
@@ -167,7 +170,7 @@ export default function EditProfileScreen() {
                         value={yeniSifreTekrar}
                         onChangeText={setYeniSifreTekrar}
                         placeholder="Şifrenizi tekrar girin"
-                        placeholderTextColor={C.muted}
+                        placeholderTextColor={T.textSec}
                         secureTextEntry
                     />
                     {yeniSifre && yeniSifreTekrar && yeniSifre !== yeniSifreTekrar && (
@@ -186,34 +189,34 @@ export default function EditProfileScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: C.bg },
+const createStyles = (T: Theme) => StyleSheet.create({
+    container: { flex: 1, backgroundColor: T.bg },
     header: {
         flexDirection: "row", alignItems: "center", justifyContent: "space-between",
         paddingHorizontal: 16, paddingVertical: 12,
-        backgroundColor: C.card, borderBottomWidth: 1, borderBottomColor: C.border,
+        backgroundColor: T.card, borderBottomWidth: 1, borderBottomColor: T.border,
     },
     backBtn: { padding: 4 },
-    headerTitle: { fontSize: 17, fontWeight: "700", color: C.text },
+    headerTitle: { fontSize: 17, fontWeight: "700", color: T.text },
     saveBtn: {
-        backgroundColor: C.primary, paddingHorizontal: 16,
+        backgroundColor: T.primary, paddingHorizontal: 16,
         paddingVertical: 8, borderRadius: 10, minWidth: 70, alignItems: "center",
     },
     saveBtnText: { color: "#fff", fontWeight: "700", fontSize: 14 },
     scroll: { flex: 1 },
     section: {
-        backgroundColor: C.card, marginHorizontal: 16, marginTop: 16,
+        backgroundColor: T.card, marginHorizontal: 16, marginTop: 16,
         borderRadius: 16, padding: 16,
         shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1,
     },
-    sectionTitle: { fontSize: 15, fontWeight: "700", color: C.text, marginBottom: 14 },
-    label: { fontSize: 12, fontWeight: "600", color: C.muted, marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.4 },
+    sectionTitle: { fontSize: 15, fontWeight: "700", color: T.text, marginBottom: 14 },
+    label: { fontSize: 12, fontWeight: "600", color: T.textSec, marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.4 },
     input: {
-        borderWidth: 1.5, borderColor: C.border, borderRadius: 12,
-        padding: 13, fontSize: 14, color: C.text, backgroundColor: C.bg,
+        borderWidth: 1.5, borderColor: T.border, borderRadius: 12,
+        padding: 13, fontSize: 14, color: T.text, backgroundColor: T.bg,
     },
-    inputDisabled: { backgroundColor: "#F1F5F9", color: C.muted },
-    inputError: { borderColor: C.danger },
-    hint: { fontSize: 12, color: C.muted, marginTop: 6 },
-    errorText: { fontSize: 12, color: C.danger, marginTop: 4 },
+    inputDisabled: { backgroundColor: "#F1F5F9", color: T.textSec },
+    inputError: { borderColor: T.danger },
+    hint: { fontSize: 12, color: T.textSec, marginTop: 6 },
+    errorText: { fontSize: 12, color: T.danger, marginTop: 4 },
 });

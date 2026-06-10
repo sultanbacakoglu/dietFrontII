@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
     ActivityIndicator,
     RefreshControl,
@@ -13,19 +13,19 @@ import {
     View,
 } from "react-native";
 import { getDiyetPlanlari, DiyetPlani } from "../../services/dietService";
-import { T } from "../../constants/theme";
+import { useTheme } from "../../contexts/ThemeContext";
+import { Theme } from "../../constants/theme";
 
-const C = { primary: T.primary, success: T.success, bg: T.bg, card: T.card, text: T.text, muted: T.textSec, border: T.border };
 
-const DURUM_RENK: Record<string, { bg: string; text: string }> = {
-    "aktif":      { bg: T.successLight, text: T.success },
-    "tamamlandı": { bg: T.primaryLight,  text: T.primary },
-    "taslak":     { bg: "#F1F5F9",       text: T.textSec },
-};
+// DURUM_RENK component içinde hesaplanır (tema duyarlı)
 
 const FILTRELER = ["aktif", "tamamlandı"];
 
 export default function DietScreen() {
+    const { T } = useTheme();
+    const C = T;
+    const styles = useMemo(() => createStyles(T), [T]);
+    const DURUM_RENK: Record<string, { bg: string; text: string }> = { "aktif": { bg: T.successLight, text: T.success }, "tamamlandı": { bg: T.primaryLight, text: T.primary }, "taslak": { bg: T.border, text: T.textSec } };
     const router = useRouter();
     const [planlar, setPlanlar] = useState<DiyetPlani[]>([]);
     const [loading, setLoading] = useState(true);
@@ -74,11 +74,11 @@ export default function DietScreen() {
 
             {/* Arama */}
             <View style={styles.searchContainer}>
-                <Ionicons name="search-outline" size={16} color={C.muted} style={{ marginLeft: 12 }} />
+                <Ionicons name="search-outline" size={16} color={T.textSec} style={{ marginLeft: 12 }} />
                 <TextInput
                     style={styles.searchInput}
                     placeholder="Plan veya hasta ara..."
-                    placeholderTextColor={C.muted}
+                    placeholderTextColor={T.textSec}
                     value={arama}
                     onChangeText={setArama}
                 />
@@ -114,7 +114,7 @@ export default function DietScreen() {
                 ) : gosterilen.length === 0 ? (
                     <View style={styles.empty}>
                         <View style={styles.emptyIcon}>
-                            <Ionicons name="nutrition-outline" size={40} color={C.muted} />
+                            <Ionicons name="nutrition-outline" size={40} color={T.textSec} />
                         </View>
                         <Text style={styles.emptyTitle}>Plan Bulunamadı</Text>
                         <Text style={styles.emptyDesc}>
@@ -145,7 +145,7 @@ export default function DietScreen() {
                                         <View style={{ flex: 1 }}>
                                             <Text style={styles.planBaslik} numberOfLines={1}>{plan.baslik}</Text>
                                             <View style={styles.planMeta}>
-                                                <Ionicons name="person-outline" size={12} color={C.muted} />
+                                                <Ionicons name="person-outline" size={12} color={T.textSec} />
                                                 <Text style={styles.planMetaText}>{plan.hastaAdSoyad ?? "-"}</Text>
                                             </View>
                                         </View>
@@ -156,20 +156,20 @@ export default function DietScreen() {
 
                                     <View style={styles.planKartAlt}>
                                         <View style={styles.planBilgi}>
-                                            <Ionicons name="calendar-outline" size={12} color={C.muted} />
+                                            <Ionicons name="calendar-outline" size={12} color={T.textSec} />
                                             <Text style={styles.planBilgiText}>
                                                 {plan.baslangicTarihi?.slice(5).replace("-", "/")} — {plan.bitisTarihi?.slice(5).replace("-", "/")}
                                             </Text>
                                         </View>
                                         {sure && (
                                             <View style={styles.planBilgi}>
-                                                <Ionicons name="time-outline" size={12} color={C.muted} />
+                                                <Ionicons name="time-outline" size={12} color={T.textSec} />
                                                 <Text style={styles.planBilgiText}>{sure} gün</Text>
                                             </View>
                                         )}
                                         {plan.kaloriHedefi && (
                                             <View style={styles.planBilgi}>
-                                                <Ionicons name="flame-outline" size={12} color={C.muted} />
+                                                <Ionicons name="flame-outline" size={12} color={T.textSec} />
                                                 <Text style={styles.planBilgiText}>{plan.kaloriHedefi} kcal</Text>
                                             </View>
                                         )}
@@ -185,25 +185,25 @@ export default function DietScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: C.bg },
+const createStyles = (T: Theme) => StyleSheet.create({
+    container: { flex: 1, backgroundColor: T.bg },
     header: {
         flexDirection: "row", justifyContent: "space-between", alignItems: "center",
-        paddingHorizontal: 20, paddingTop: 12, paddingBottom: 8, backgroundColor: C.card,
+        paddingHorizontal: 20, paddingTop: 12, paddingBottom: 8, backgroundColor: T.card,
     },
-    headerSub: { fontSize: 13, color: C.muted, marginBottom: 2 },
-    headerTitle: { fontSize: 22, fontWeight: "700", color: C.text },
+    headerSub: { fontSize: 13, color: T.textSec, marginBottom: 2 },
+    headerTitle: { fontSize: 22, fontWeight: "700", color: T.text },
     addBtn: {
-        width: 44, height: 44, borderRadius: 22, backgroundColor: C.primary,
+        width: 44, height: 44, borderRadius: 22, backgroundColor: T.primary,
         justifyContent: "center", alignItems: "center",
-        shadowColor: C.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4,
+        shadowColor: T.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4,
     },
     searchContainer: {
         flexDirection: "row", alignItems: "center",
-        backgroundColor: C.card, marginHorizontal: 16, marginTop: 12,
-        borderRadius: 12, borderWidth: 1.5, borderColor: C.border,
+        backgroundColor: T.card, marginHorizontal: 16, marginTop: 12,
+        borderRadius: 12, borderWidth: 1.5, borderColor: T.border,
     },
-    searchInput: { flex: 1, padding: 12, fontSize: 14, color: C.text },
+    searchInput: { flex: 1, padding: 12, fontSize: 14, color: T.text },
     filtreler: {
         flexDirection: "row",
         paddingHorizontal: 16,
@@ -216,36 +216,36 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         borderRadius: 10,
         borderWidth: 1.5,
-        borderColor: C.border,
-        backgroundColor: C.card,
+        borderColor: T.border,
+        backgroundColor: T.card,
         alignItems: "center",
     },
-    filtreText: { fontSize: 13, fontWeight: "600", color: C.muted },
+    filtreText: { fontSize: 13, fontWeight: "600", color: T.textSec },
     centered: { paddingTop: 80, alignItems: "center" },
     empty: { alignItems: "center", paddingTop: 60, paddingHorizontal: 40 },
     emptyIcon: {
         width: 80, height: 80, borderRadius: 40, backgroundColor: "#F1F5F9",
         justifyContent: "center", alignItems: "center", marginBottom: 16,
     },
-    emptyTitle: { fontSize: 18, fontWeight: "700", color: C.text, marginBottom: 6 },
-    emptyDesc: { fontSize: 14, color: C.muted, textAlign: "center", marginBottom: 24 },
+    emptyTitle: { fontSize: 18, fontWeight: "700", color: T.text, marginBottom: 6 },
+    emptyDesc: { fontSize: 14, color: T.textSec, textAlign: "center", marginBottom: 24 },
     emptyBtn: {
         flexDirection: "row", alignItems: "center", gap: 6,
-        backgroundColor: C.primary, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 12,
+        backgroundColor: T.primary, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 12,
     },
     emptyBtnText: { color: "#fff", fontWeight: "700", fontSize: 14 },
     liste: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 100, gap: 10 },
     planKart: {
-        backgroundColor: C.card, borderRadius: 16, padding: 16,
+        backgroundColor: T.card, borderRadius: 16, padding: 16,
         shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 6, elevation: 2,
     },
     planKartUst: { flexDirection: "row", alignItems: "flex-start", marginBottom: 10 },
-    planBaslik: { fontSize: 15, fontWeight: "700", color: C.text, marginBottom: 4 },
+    planBaslik: { fontSize: 15, fontWeight: "700", color: T.text, marginBottom: 4 },
     planMeta: { flexDirection: "row", alignItems: "center", gap: 4 },
-    planMetaText: { fontSize: 12, color: C.muted },
+    planMetaText: { fontSize: 12, color: T.textSec },
     durumBadge: { paddingHorizontal: 9, paddingVertical: 3, borderRadius: 8, marginLeft: 8 },
     durumText: { fontSize: 11, fontWeight: "700" },
     planKartAlt: { flexDirection: "row", alignItems: "center", gap: 12, flexWrap: "wrap" },
     planBilgi: { flexDirection: "row", alignItems: "center", gap: 4 },
-    planBilgiText: { fontSize: 12, color: C.muted },
+    planBilgiText: { fontSize: 12, color: T.textSec },
 });

@@ -1,34 +1,26 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-import { Platform, View, StyleSheet, Text } from "react-native";
-import { T } from "../../constants/theme";
-
-const COLORS = {
-  primary: T.primary,
-  success: T.success,
-  purple: T.purple,
-};
+import { Platform, View, StyleSheet } from "react-native";
+import { useTheme } from "../../contexts/ThemeContext";
 
 export default function TabLayout() {
+  const { T } = useTheme();
+
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: "#94A3B8",
+        tabBarActiveTintColor: T.primary,
+        tabBarInactiveTintColor: T.textMuted,
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: "#FFFFFF",
+          backgroundColor: T.card,
           borderTopWidth: 1,
-          borderTopColor: "#F1F5F9",
+          borderTopColor: T.border,
           height: Platform.OS === "ios" ? 88 : 70,
           paddingBottom: Platform.OS === "ios" ? 30 : 10,
           paddingTop: 10,
         },
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: "600",
-          marginTop: 4,
-        },
+        tabBarLabelStyle: { fontSize: 11, fontWeight: "600", marginTop: 4 },
       }}
     >
       <Tabs.Screen
@@ -38,13 +30,9 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <View style={styles.tabItem}>
               <View style={[styles.iconBox, focused && { backgroundColor: T.primaryLight }]}>
-                <Ionicons
-                  name={focused ? "home" : "home-outline"}
-                  size={22}
-                  color={color}
-                />
+                <Ionicons name={focused ? "home" : "home-outline"} size={22} color={color} />
               </View>
-              {focused && <View style={styles.activeDot} />}
+              {focused && <View style={[styles.activeDot, { backgroundColor: T.primary }]} />}
             </View>
           ),
         }}
@@ -56,13 +44,9 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <View style={styles.tabItem}>
               <View style={[styles.iconBox, focused && { backgroundColor: T.successLight }]}>
-                <Ionicons
-                  name={focused ? "calendar" : "calendar-outline"}
-                  size={22}
-                  color={focused ? COLORS.success : color}
-                />
+                <Ionicons name={focused ? "calendar" : "calendar-outline"} size={22} color={focused ? T.success : color} />
               </View>
-              {focused && <View style={[styles.activeDot, { backgroundColor: COLORS.success }] } />}
+              {focused && <View style={[styles.activeDot, { backgroundColor: T.success }]} />}
             </View>
           ),
         }}
@@ -73,12 +57,8 @@ export default function TabLayout() {
           title: "Diyet",
           tabBarIcon: ({ color, focused }) => (
             <View style={styles.tabItem}>
-              <View style={[styles.iconBox, focused && { backgroundColor: "#D1FAE5" }]}>
-                <Ionicons
-                  name={focused ? "nutrition" : "nutrition-outline"}
-                  size={22}
-                  color={focused ? T.success : color}
-                />
+              <View style={[styles.iconBox, focused && { backgroundColor: T.successLight }]}>
+                <Ionicons name={focused ? "nutrition" : "nutrition-outline"} size={22} color={focused ? T.success : color} />
               </View>
               {focused && <View style={[styles.activeDot, { backgroundColor: T.success }]} />}
             </View>
@@ -92,13 +72,9 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <View style={styles.tabItem}>
               <View style={[styles.iconBox, focused && { backgroundColor: T.purpleLight }]}>
-                <Ionicons
-                  name={focused ? "person" : "person-outline"}
-                  size={22}
-                  color={focused ? COLORS.purple : color}
-                />
+                <Ionicons name={focused ? "person" : "person-outline"} size={22} color={focused ? T.purple : color} />
               </View>
-              {focused && <View style={[styles.activeDot, { backgroundColor: COLORS.purple }] } />}
+              {focused && <View style={[styles.activeDot, { backgroundColor: T.purple }]} />}
             </View>
           ),
         }}
@@ -108,21 +84,7 @@ export default function TabLayout() {
 }
 
 const styles = StyleSheet.create({
-  tabItem: {
-    alignItems: "center",
-  },
-  iconBox: {
-    width: 44,
-    height: 32,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 10,
-  },
-  activeDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: COLORS.primary,
-    marginTop: 4,
-  },
+  tabItem: { alignItems: "center" },
+  iconBox: { width: 44, height: 32, justifyContent: "center", alignItems: "center", borderRadius: 10 },
+  activeDot: { width: 4, height: 4, borderRadius: 2, marginTop: 4 },
 });

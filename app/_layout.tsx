@@ -1,7 +1,9 @@
 import { Stack } from "expo-router";
+import { ThemeProvider } from "../contexts/ThemeContext";
 
 export default function RootLayout() {
   return (
+    <ThemeProvider>
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
       <Stack.Screen name="(auth)/login" />
@@ -14,5 +16,6 @@ export default function RootLayout() {
       <Stack.Screen name="profile/edit" />
       <Stack.Screen name="patients/edit" />
     </Stack>
+    </ThemeProvider>
   );
 }

@@ -1,6 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useMemo } from "react";
 import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { T } from "../../constants/theme";
+import { useTheme } from "../../contexts/ThemeContext";
+import { Theme } from "../../constants/theme";
 
 export type AlertType = "success" | "error" | "info" | "warning";
 
@@ -13,15 +15,17 @@ interface Props {
     confirmText?: string;
 }
 
-const CONFIG: Record<AlertType, { icon: any; color: string; bg: string }> = {
+const getConfig = (T: Theme): Record<AlertType, { icon: any; color: string; bg: string }> => ({
     success: { icon: "checkmark-circle", color: T.success, bg: T.successLight },
     error:   { icon: "close-circle",     color: T.danger,  bg: T.dangerLight },
     info:    { icon: "information-circle", color: T.primary, bg: T.primaryLight },
     warning: { icon: "alert-circle",     color: T.warning, bg: T.warningLight },
-};
+});
 
 export function AlertModal({ visible, type = "info", title, message, onClose, confirmText = "Tamam" }: Props) {
-    const cfg = CONFIG[type];
+    const { T } = useTheme();
+    const styles = useMemo(() => createStyles(T), [T]);
+    const cfg = getConfig(T)[type];
     return (
         <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
             <Pressable style={styles.overlay} onPress={onClose}>
@@ -44,9 +48,9 @@ export function AlertModal({ visible, type = "info", title, message, onClose, co
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (T: Theme) => StyleSheet.create({
     overlay: {
-        flex: 1, backgroundColor: "rgba(0,0,0,0.5)",
+        flex: 1, backgroundColor: "rgba(0,0,0,0.6)",
         justifyContent: "center", alignItems: "center", paddingHorizontal: 32,
     },
     box: {
@@ -59,8 +63,6 @@ const styles = StyleSheet.create({
     },
     title: { fontSize: 18, fontWeight: "700", color: T.text, marginBottom: 8, textAlign: "center" },
     message: { fontSize: 14, color: T.textSec, textAlign: "center", marginBottom: 20, lineHeight: 20 },
-    btn: {
-        width: "100%", paddingVertical: 13, borderRadius: 12, alignItems: "center",
-    },
+    btn: { width: "100%", paddingVertical: 13, borderRadius: 12, alignItems: "center" },
     btnText: { color: "#fff", fontWeight: "700", fontSize: 15 },
 });

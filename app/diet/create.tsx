@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
     ActivityIndicator,
     Alert,
@@ -14,12 +14,9 @@ import {
 } from "react-native";
 import { getHastalar, Hasta } from "../../services/api";
 import { diyetPlaniOlustur } from "../../services/dietService";
-import { T } from "../../constants/theme";
+import { useTheme } from "../../contexts/ThemeContext";
+import { Theme } from "../../constants/theme";
 
-const C = {
-    primary: T.primary, success: T.success, bg: T.bg,
-    card: T.card, text: T.text, muted: T.textSec, border: T.border,
-};
 
 function formatDate(date: Date) {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
@@ -37,6 +34,9 @@ const DURUMLAR = [
 ];
 
 export default function CreateDietPlanScreen() {
+    const { T } = useTheme();
+    const C = T;
+    const styles = useMemo(() => createStyles(T), [T]);
     const router = useRouter();
     const { hastaId: paramHastaId } = useLocalSearchParams<{ hastaId?: string }>();
 
@@ -131,18 +131,18 @@ export default function CreateDietPlanScreen() {
                     >
                         {hastaLoading ? <ActivityIndicator size="small" color={C.primary} /> : (
                             <>
-                                <Ionicons name="person-outline" size={18} color={C.muted} />
+                                <Ionicons name="person-outline" size={18} color={T.textSec} />
                                 <Text style={[styles.selectText, secilenHasta && { color: C.text }]}>
                                     {secilenHasta ? secilenHasta.adSoyad : "Hasta seçin..."}
                                 </Text>
-                                <Ionicons name={hastaDropdown ? "chevron-up" : "chevron-down"} size={18} color={C.muted} />
+                                <Ionicons name={hastaDropdown ? "chevron-up" : "chevron-down"} size={18} color={T.textSec} />
                             </>
                         )}
                     </TouchableOpacity>
                     {hastaDropdown && (
                         <View style={styles.dropdown}>
                             <View style={styles.searchRow}>
-                                <Ionicons name="search-outline" size={16} color={C.muted} />
+                                <Ionicons name="search-outline" size={16} color={T.textSec} />
                                 <TextInput
                                     style={styles.searchInput}
                                     placeholder="Hasta ara..."
@@ -178,7 +178,7 @@ export default function CreateDietPlanScreen() {
                     <TextInput
                         style={styles.input}
                         placeholder="Örn: 1 Aylık Kilo Verme Programı"
-                        placeholderTextColor={C.muted}
+                        placeholderTextColor={T.textSec}
                         value={baslik}
                         onChangeText={setBaslik}
                     />
@@ -186,7 +186,7 @@ export default function CreateDietPlanScreen() {
                     <TextInput
                         style={[styles.input, styles.multiline]}
                         placeholder="Plan hakkında kısa açıklama..."
-                        placeholderTextColor={C.muted}
+                        placeholderTextColor={T.textSec}
                         multiline
                         value={aciklama}
                         onChangeText={setAciklama}
@@ -204,7 +204,7 @@ export default function CreateDietPlanScreen() {
                                 value={baslangic}
                                 onChangeText={setBaslangic}
                                 placeholder="YYYY-MM-DD"
-                                placeholderTextColor={C.muted}
+                                placeholderTextColor={T.textSec}
                             />
                         </View>
                         <View style={{ width: 12 }} />
@@ -215,7 +215,7 @@ export default function CreateDietPlanScreen() {
                                 value={bitis}
                                 onChangeText={setBitis}
                                 placeholder="YYYY-MM-DD"
-                                placeholderTextColor={C.muted}
+                                placeholderTextColor={T.textSec}
                             />
                         </View>
                     </View>
@@ -223,7 +223,7 @@ export default function CreateDietPlanScreen() {
                     <TextInput
                         style={styles.input}
                         placeholder="Örn: 1800"
-                        placeholderTextColor={C.muted}
+                        placeholderTextColor={T.textSec}
                         keyboardType="numeric"
                         value={kalori}
                         onChangeText={setKalori}
@@ -244,7 +244,7 @@ export default function CreateDietPlanScreen() {
                             <TextInput
                                 style={[styles.input, styles.multiline]}
                                 placeholder={ph}
-                                placeholderTextColor={C.muted}
+                                placeholderTextColor={T.textSec}
                                 multiline
                                 value={value}
                                 onChangeText={set}
@@ -278,7 +278,7 @@ export default function CreateDietPlanScreen() {
                     <TextInput
                         style={[styles.input, styles.multiline, { minHeight: 80 }]}
                         placeholder="Diyet sırasında dikkat edilmesi gerekenler..."
-                        placeholderTextColor={C.muted}
+                        placeholderTextColor={T.textSec}
                         multiline
                         value={notlar}
                         onChangeText={setNotlar}
@@ -290,49 +290,49 @@ export default function CreateDietPlanScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: C.bg },
+const createStyles = (T: Theme) => StyleSheet.create({
+    container: { flex: 1, backgroundColor: T.bg },
     header: {
         flexDirection: "row", alignItems: "center", justifyContent: "space-between",
         paddingHorizontal: 16, paddingVertical: 12,
-        backgroundColor: C.card, borderBottomWidth: 1, borderBottomColor: C.border,
+        backgroundColor: T.card, borderBottomWidth: 1, borderBottomColor: T.border,
     },
     backBtn: { padding: 4 },
-    headerTitle: { fontSize: 17, fontWeight: "700", color: C.text },
+    headerTitle: { fontSize: 17, fontWeight: "700", color: T.text },
     saveBtn: {
-        backgroundColor: C.primary, paddingHorizontal: 16,
+        backgroundColor: T.primary, paddingHorizontal: 16,
         paddingVertical: 8, borderRadius: 10, minWidth: 70, alignItems: "center",
     },
     saveBtnText: { color: "#fff", fontWeight: "700", fontSize: 14 },
     scroll: { flex: 1 },
     section: {
-        backgroundColor: C.card, marginHorizontal: 16, marginTop: 14,
+        backgroundColor: T.card, marginHorizontal: 16, marginTop: 14,
         borderRadius: 16, padding: 16,
         shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1,
     },
-    sectionTitle: { fontSize: 15, fontWeight: "700", color: C.text, marginBottom: 14 },
-    label: { fontSize: 12, fontWeight: "600", color: C.muted, marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.4 },
+    sectionTitle: { fontSize: 15, fontWeight: "700", color: T.text, marginBottom: 14 },
+    label: { fontSize: 12, fontWeight: "600", color: T.textSec, marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.4 },
     input: {
-        borderWidth: 1.5, borderColor: C.border, borderRadius: 12,
-        padding: 13, fontSize: 14, color: C.text, backgroundColor: C.bg,
+        borderWidth: 1.5, borderColor: T.border, borderRadius: 12,
+        padding: 13, fontSize: 14, color: T.text, backgroundColor: T.bg,
     },
     multiline: { minHeight: 70, textAlignVertical: "top" },
     row: { flexDirection: "row" },
     selectBox: {
         flexDirection: "row", alignItems: "center", gap: 10,
-        borderWidth: 1.5, borderColor: C.border, borderRadius: 12,
-        padding: 13, backgroundColor: C.bg,
+        borderWidth: 1.5, borderColor: T.border, borderRadius: 12,
+        padding: 13, backgroundColor: T.bg,
     },
-    selectText: { flex: 1, fontSize: 15, color: C.muted },
+    selectText: { flex: 1, fontSize: 15, color: T.textSec },
     dropdown: {
-        marginTop: 8, borderWidth: 1.5, borderColor: C.border,
-        borderRadius: 12, overflow: "hidden", backgroundColor: C.card,
+        marginTop: 8, borderWidth: 1.5, borderColor: T.border,
+        borderRadius: 12, overflow: "hidden", backgroundColor: T.card,
     },
     searchRow: {
         flexDirection: "row", alignItems: "center", gap: 8, padding: 12,
-        borderBottomWidth: 1, borderBottomColor: C.border,
+        borderBottomWidth: 1, borderBottomColor: T.border,
     },
-    searchInput: { flex: 1, fontSize: 14, color: C.text },
+    searchInput: { flex: 1, fontSize: 14, color: T.text },
     dropdownItem: {
         flexDirection: "row", alignItems: "center", gap: 12,
         padding: 12, borderBottomWidth: 1, borderBottomColor: T.bg,
@@ -341,15 +341,15 @@ const styles = StyleSheet.create({
         width: 34, height: 34, borderRadius: 17,
         backgroundColor: T.primaryLight, justifyContent: "center", alignItems: "center",
     },
-    dropdownAvatarText: { fontWeight: "700", color: C.primary, fontSize: 14 },
-    dropdownName: { fontSize: 14, fontWeight: "600", color: C.text },
-    dropdownSub: { fontSize: 12, color: C.muted },
+    dropdownAvatarText: { fontWeight: "700", color: T.primary, fontSize: 14 },
+    dropdownName: { fontSize: 14, fontWeight: "600", color: T.text },
+    dropdownSub: { fontSize: 12, color: T.textSec },
     chipRow: { flexDirection: "row", gap: 8 },
     chip: {
         paddingHorizontal: 16, paddingVertical: 10, borderRadius: 10,
-        borderWidth: 1.5, borderColor: C.border, backgroundColor: C.bg,
+        borderWidth: 1.5, borderColor: T.border, backgroundColor: T.bg,
     },
-    chipSelected: { backgroundColor: T.primaryLight, borderColor: C.primary },
-    chipText: { fontSize: 13, fontWeight: "600", color: C.muted },
-    chipTextSelected: { color: C.primary },
+    chipSelected: { backgroundColor: T.primaryLight, borderColor: T.primary },
+    chipText: { fontSize: 13, fontWeight: "600", color: T.textSec },
+    chipTextSelected: { color: T.primary },
 });

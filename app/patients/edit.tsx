@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
     ActivityIndicator,
     SafeAreaView,
@@ -13,13 +13,16 @@ import {
 } from "react-native";
 import { getHastaById, hastaGuncelle } from "../../services/api";
 import { AlertModal, AlertType } from "../../components/ui/AlertModal";
-import { T } from "../../constants/theme";
+import { useTheme } from "../../contexts/ThemeContext";
+import { Theme } from "../../constants/theme";
 
-const C = { primary: T.primary, danger: T.danger, bg: T.bg, card: T.card, text: T.text, muted: T.textSec, border: T.border };
 
 const CINSIYETLER = ["Kadın", "Erkek", "Belirtmek istemiyor"];
 
 export default function EditPatientScreen() {
+    const { T } = useTheme();
+    const C = T;
+    const styles = useMemo(() => createStyles(T), [T]);
     const router = useRouter();
     const { id } = useLocalSearchParams<{ id: string }>();
 
@@ -123,16 +126,16 @@ export default function EditPatientScreen() {
                     <Text style={styles.sectionTitle}>Kişisel Bilgiler</Text>
 
                     <Text style={styles.label}>Ad Soyad *</Text>
-                    <TextInput style={styles.input} value={adSoyad} onChangeText={setAdSoyad} placeholder="Ad Soyad" placeholderTextColor={C.muted} />
+                    <TextInput style={styles.input} value={adSoyad} onChangeText={setAdSoyad} placeholder="Ad Soyad" placeholderTextColor={T.textSec} />
 
                     <Text style={[styles.label, { marginTop: 14 }]}>E-posta *</Text>
-                    <TextInput style={styles.input} value={eposta} onChangeText={setEposta} placeholder="ornek@email.com" placeholderTextColor={C.muted} keyboardType="email-address" autoCapitalize="none" />
+                    <TextInput style={styles.input} value={eposta} onChangeText={setEposta} placeholder="ornek@email.com" placeholderTextColor={T.textSec} keyboardType="email-address" autoCapitalize="none" />
 
                     <Text style={[styles.label, { marginTop: 14 }]}>Telefon</Text>
-                    <TextInput style={styles.input} value={telefon} onChangeText={setTelefon} placeholder="0555 123 45 67" placeholderTextColor={C.muted} keyboardType="phone-pad" />
+                    <TextInput style={styles.input} value={telefon} onChangeText={setTelefon} placeholder="0555 123 45 67" placeholderTextColor={T.textSec} keyboardType="phone-pad" />
 
                     <Text style={[styles.label, { marginTop: 14 }]}>Doğum Tarihi</Text>
-                    <TextInput style={styles.input} value={dogumTarihi} onChangeText={setDogumTarihi} placeholder="YYYY-MM-DD" placeholderTextColor={C.muted} />
+                    <TextInput style={styles.input} value={dogumTarihi} onChangeText={setDogumTarihi} placeholder="YYYY-MM-DD" placeholderTextColor={T.textSec} />
 
                     <Text style={[styles.label, { marginTop: 14 }]}>Cinsiyet</Text>
                     <View style={styles.chipRow}>
@@ -153,12 +156,12 @@ export default function EditPatientScreen() {
                     <View style={styles.row}>
                         <View style={{ flex: 1 }}>
                             <Text style={styles.label}>Boy (cm)</Text>
-                            <TextInput style={styles.input} value={boy} onChangeText={setBoy} placeholder="170" placeholderTextColor={C.muted} keyboardType="numeric" />
+                            <TextInput style={styles.input} value={boy} onChangeText={setBoy} placeholder="170" placeholderTextColor={T.textSec} keyboardType="numeric" />
                         </View>
                         <View style={{ width: 12 }} />
                         <View style={{ flex: 1 }}>
                             <Text style={styles.label}>Kilo (kg)</Text>
-                            <TextInput style={styles.input} value={kilo} onChangeText={setKilo} placeholder="70" placeholderTextColor={C.muted} keyboardType="numeric" />
+                            <TextInput style={styles.input} value={kilo} onChangeText={setKilo} placeholder="70" placeholderTextColor={T.textSec} keyboardType="numeric" />
                         </View>
                     </View>
                 </View>
@@ -172,7 +175,7 @@ export default function EditPatientScreen() {
                         value={sikayet}
                         onChangeText={setSikayet}
                         placeholder="Hastanın şikayeti veya hedefi..."
-                        placeholderTextColor={C.muted}
+                        placeholderTextColor={T.textSec}
                         multiline
                         textAlignVertical="top"
                     />
@@ -183,7 +186,7 @@ export default function EditPatientScreen() {
                         value={notlar}
                         onChangeText={setNotlar}
                         placeholder="Ek notlar..."
-                        placeholderTextColor={C.muted}
+                        placeholderTextColor={T.textSec}
                         multiline
                         textAlignVertical="top"
                     />
@@ -201,40 +204,40 @@ export default function EditPatientScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: C.bg },
+const createStyles = (T: Theme) => StyleSheet.create({
+    container: { flex: 1, backgroundColor: T.bg },
     header: {
         flexDirection: "row", alignItems: "center", justifyContent: "space-between",
         paddingHorizontal: 16, paddingVertical: 12,
-        backgroundColor: C.card, borderBottomWidth: 1, borderBottomColor: C.border,
+        backgroundColor: T.card, borderBottomWidth: 1, borderBottomColor: T.border,
     },
     backBtn: { padding: 4 },
-    headerTitle: { fontSize: 17, fontWeight: "700", color: C.text },
+    headerTitle: { fontSize: 17, fontWeight: "700", color: T.text },
     saveBtn: {
-        backgroundColor: C.primary, paddingHorizontal: 16,
+        backgroundColor: T.primary, paddingHorizontal: 16,
         paddingVertical: 8, borderRadius: 10, minWidth: 70, alignItems: "center",
     },
     saveBtnText: { color: "#fff", fontWeight: "700", fontSize: 14 },
     scroll: { flex: 1 },
     section: {
-        backgroundColor: C.card, marginHorizontal: 16, marginTop: 16,
+        backgroundColor: T.card, marginHorizontal: 16, marginTop: 16,
         borderRadius: 16, padding: 16,
         shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1,
     },
-    sectionTitle: { fontSize: 15, fontWeight: "700", color: C.text, marginBottom: 14 },
-    label: { fontSize: 12, fontWeight: "600", color: C.muted, marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.4 },
+    sectionTitle: { fontSize: 15, fontWeight: "700", color: T.text, marginBottom: 14 },
+    label: { fontSize: 12, fontWeight: "600", color: T.textSec, marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.4 },
     input: {
-        borderWidth: 1.5, borderColor: C.border, borderRadius: 12,
-        padding: 13, fontSize: 14, color: C.text, backgroundColor: C.bg,
+        borderWidth: 1.5, borderColor: T.border, borderRadius: 12,
+        padding: 13, fontSize: 14, color: T.text, backgroundColor: T.bg,
     },
     multiline: { minHeight: 70, textAlignVertical: "top" },
     row: { flexDirection: "row" },
     chipRow: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
     chip: {
         paddingHorizontal: 14, paddingVertical: 9, borderRadius: 10,
-        borderWidth: 1.5, borderColor: C.border, backgroundColor: C.bg,
+        borderWidth: 1.5, borderColor: T.border, backgroundColor: T.bg,
     },
-    chipSelected: { backgroundColor: T.primaryLight, borderColor: C.primary },
-    chipText: { fontSize: 13, fontWeight: "600", color: C.muted },
-    chipTextSelected: { color: C.primary },
+    chipSelected: { backgroundColor: T.primaryLight, borderColor: T.primary },
+    chipText: { fontSize: 13, fontWeight: "600", color: T.textSec },
+    chipTextSelected: { color: T.primary },
 });

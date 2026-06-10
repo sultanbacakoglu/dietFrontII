@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -13,20 +13,14 @@ import {
   View,
 } from "react-native";
 import { getHastaById, hastaSil, Hasta } from "../../services/api";
-import { T } from "../../constants/theme";
+import { useTheme } from "../../contexts/ThemeContext";
+import { Theme } from "../../constants/theme";
 
-const COLORS = {
-  primary: T.primary,
-  secondary: T.pink,
-  success: T.success,
-  warning: T.warning,
-  danger: T.danger,
-  purple: T.purple,
-  cyan: T.accent,
-  teal: "#14B8A6",
-};
 
 export default function PatientDetailScreen() {
+    const { T } = useTheme();
+    const COLORS = T;
+    const styles = useMemo(() => createStyles(T), [T]);
   const { id } = useLocalSearchParams<{ id: string }>();
   const [hasta, setHasta] = useState<Hasta | null>(null);
   const [loading, setLoading] = useState(true);
@@ -153,7 +147,7 @@ export default function PatientDetailScreen() {
             </TouchableOpacity>
             <TouchableOpacity style={[styles.actionBtn, { backgroundColor: "#FCE7F3" }]}>
               <View style={[styles.actionIcon, { backgroundColor: "#FDF2F8" }]}>
-                <Ionicons name="chatbubbles" size={20} color={COLORS.secondary} />
+                <Ionicons name="chatbubbles" size={20} color={T.pink} />
               </View>
               <Text style={[styles.actionText, { color: "#BE185D" }]}>Mesaj</Text>
             </TouchableOpacity>
@@ -185,28 +179,9 @@ export default function PatientDetailScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Kişisel Bilgiler</Text>
           <View style={styles.card}>
-            <InfoRow 
-              icon="call-outline" 
-              iconColor="#10B981"
-              iconBg="#D1FAE5"
-              label="Telefon" 
-              value={hasta.telefon || "Belirtilmedi"} 
-            />
-            <InfoRow 
-              icon="calendar-outline" 
-              iconColor="#8B5CF6"
-              iconBg="#EDE9FE"
-              label="Doğum Tarihi" 
-              value={hasta.dogumTarihi || "Belirtilmedi"} 
-            />
-            <InfoRow 
-              icon="male-female-outline" 
-              iconColor="#EC4899"
-              iconBg="#FCE7F3"
-              label="Cinsiyet" 
-              value={hasta.cinsiyet || "Belirtilmedi"} 
-              isLast
-            />
+            <InfoRow theme={T} icon="call-outline" iconColor="#10B981" iconBg="#D1FAE5" label="Telefon" value={hasta.telefon || "Belirtilmedi"} />
+            <InfoRow theme={T} icon="calendar-outline" iconColor="#8B5CF6" iconBg="#EDE9FE" label="Doğum Tarihi" value={hasta.dogumTarihi || "Belirtilmedi"} />
+            <InfoRow theme={T} icon="male-female-outline" iconColor="#EC4899" iconBg="#FCE7F3" label="Cinsiyet" value={hasta.cinsiyet || "Belirtilmedi"} isLast />
           </View>
         </View>
 
@@ -254,28 +229,26 @@ export default function PatientDetailScreen() {
   );
 }
 
-function InfoRow({ icon, iconColor, iconBg, label, value, isLast }: { 
-  icon: string; 
-  iconColor: string;
-  iconBg: string;
-  label: string; 
-  value: string;
-  isLast?: boolean;
+function InfoRow({ icon, iconColor, iconBg, label, value, isLast, theme }: {
+  icon: string; iconColor: string; iconBg: string;
+  label: string; value: string; isLast?: boolean;
+  theme: Theme;
 }) {
+  const T = theme;
   return (
-    <View style={[styles.infoRow, isLast && { borderBottomWidth: 0 }]}>
-      <View style={[styles.infoIcon, { backgroundColor: iconBg }]}>
+    <View style={{ flexDirection: "row", alignItems: "center", paddingVertical: 14, borderBottomWidth: isLast ? 0 : 1, borderBottomColor: T.border }}>
+      <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: iconBg, justifyContent: "center", alignItems: "center", marginRight: 14 }}>
         <Ionicons name={icon as any} size={18} color={iconColor} />
       </View>
-      <View style={styles.infoContent}>
-        <Text style={styles.infoLabel}>{label}</Text>
-        <Text style={styles.infoValue}>{value}</Text>
+      <View style={{ flex: 1 }}>
+        <Text style={{ fontSize: 12, color: T.textSec, marginBottom: 2 }}>{label}</Text>
+        <Text style={{ fontSize: 15, color: T.text, fontWeight: "500" }}>{value}</Text>
       </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (T: Theme) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: T.bg,

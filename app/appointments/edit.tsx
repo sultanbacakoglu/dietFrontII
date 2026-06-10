@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
     ActivityIndicator,
     Alert,
@@ -14,19 +14,8 @@ import {
 } from "react-native";
 import { getHastalar, Hasta } from "../../services/api";
 import { getRandevuById, randevuGuncelle, RandevuTipi, RandevuDurumu } from "../../services/appointmentService";
-import { T } from "../../constants/theme";
-
-const COLORS = {
-    primary: T.primary,
-    success: T.success,
-    warning: T.warning,
-    danger: T.danger,
-    bg: T.bg,
-    card: T.card,
-    text: T.text,
-    muted: T.textSec,
-    border: T.border,
-};
+import { useTheme } from "../../contexts/ThemeContext";
+import { Theme } from "../../constants/theme";
 
 const RANDEVU_TIPLERI: RandevuTipi[] = ["İlk Görüşme", "Kontrol", "Tetkik Sonucu", "Diyet Planı", "Diğer"];
 const DURUMLAR: { label: string; value: RandevuDurumu }[] = [
@@ -69,6 +58,9 @@ function getDays(): string[] {
 export default function EditAppointmentScreen() {
     const router = useRouter();
     const { id } = useLocalSearchParams<{ id: string }>();
+    const { T } = useTheme();
+    const COLORS = T;
+    const styles = useMemo(() => createStyles(T), [T]);
 
     const [loadingData, setLoadingData] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -169,16 +161,16 @@ export default function EditAppointmentScreen() {
                         style={styles.selectBox}
                         onPress={() => { setHastaDropdown(!hastaDropdown); setHastaArama(""); }}
                     >
-                        <Ionicons name="person-outline" size={18} color={COLORS.muted} />
+                        <Ionicons name="person-outline" size={18} color={T.textSec} />
                         <Text style={[styles.selectBoxText, secilenHasta && { color: COLORS.text }]}>
                             {secilenHasta ? secilenHasta.adSoyad : "Hasta seçin..."}
                         </Text>
-                        <Ionicons name={hastaDropdown ? "chevron-up" : "chevron-down"} size={18} color={COLORS.muted} />
+                        <Ionicons name={hastaDropdown ? "chevron-up" : "chevron-down"} size={18} color={T.textSec} />
                     </TouchableOpacity>
                     {hastaDropdown && (
                         <View style={styles.dropdown}>
                             <View style={styles.searchRow}>
-                                <Ionicons name="search-outline" size={16} color={COLORS.muted} />
+                                <Ionicons name="search-outline" size={16} color={T.textSec} />
                                 <TextInput
                                     style={styles.searchInput}
                                     placeholder="Hasta ara..."
@@ -298,7 +290,7 @@ export default function EditAppointmentScreen() {
                     <TextInput
                         style={styles.notlarInput}
                         placeholder="Randevu ile ilgili not ekleyin..."
-                        placeholderTextColor={COLORS.muted}
+                        placeholderTextColor={T.textSec}
                         multiline
                         numberOfLines={4}
                         value={notlar}
@@ -311,88 +303,51 @@ export default function EditAppointmentScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: COLORS.bg },
+const createStyles = (T: Theme) => StyleSheet.create({
+    container: { flex: 1, backgroundColor: T.bg },
     header: {
         flexDirection: "row", alignItems: "center", justifyContent: "space-between",
         paddingHorizontal: 16, paddingVertical: 12,
-        backgroundColor: COLORS.card, borderBottomWidth: 1, borderBottomColor: COLORS.border,
+        backgroundColor: T.card, borderBottomWidth: 1, borderBottomColor: T.border,
     },
     backBtn: { padding: 4 },
-    headerTitle: { fontSize: 17, fontWeight: "700", color: COLORS.text },
-    saveBtn: {
-        backgroundColor: COLORS.primary, paddingHorizontal: 16, paddingVertical: 8,
-        borderRadius: 10, minWidth: 70, alignItems: "center",
-    },
+    headerTitle: { fontSize: 17, fontWeight: "700", color: T.text },
+    saveBtn: { backgroundColor: T.primary, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 10, minWidth: 70, alignItems: "center" },
     saveBtnText: { color: "#fff", fontWeight: "700", fontSize: 14 },
     scroll: { flex: 1 },
     section: {
-        backgroundColor: COLORS.card, marginHorizontal: 16, marginTop: 16,
-        borderRadius: 16, padding: 16,
+        backgroundColor: T.card, marginHorizontal: 16, marginTop: 16, borderRadius: 16, padding: 16,
         shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1,
     },
-    sectionLabel: {
-        fontSize: 13, fontWeight: "600", color: COLORS.muted,
-        marginBottom: 12, textTransform: "uppercase", letterSpacing: 0.5,
-    },
-    selectBox: {
-        flexDirection: "row", alignItems: "center", gap: 10,
-        borderWidth: 1.5, borderColor: COLORS.border, borderRadius: 12,
-        padding: 14, backgroundColor: COLORS.bg,
-    },
-    selectBoxText: { flex: 1, fontSize: 15, color: COLORS.muted },
-    dropdown: {
-        marginTop: 8, borderWidth: 1.5, borderColor: COLORS.border,
-        borderRadius: 12, overflow: "hidden", backgroundColor: COLORS.card,
-    },
-    searchRow: {
-        flexDirection: "row", alignItems: "center", gap: 8, padding: 12,
-        borderBottomWidth: 1, borderBottomColor: COLORS.border,
-    },
-    searchInput: { flex: 1, fontSize: 14, color: COLORS.text },
-    dropdownItem: {
-        flexDirection: "row", alignItems: "center", gap: 12,
-        padding: 12, borderBottomWidth: 1, borderBottomColor: T.bg,
-    },
-    dropdownAvatar: {
-        width: 36, height: 36, borderRadius: 18,
-        backgroundColor: T.primaryLight, justifyContent: "center", alignItems: "center",
-    },
-    dropdownAvatarText: { fontWeight: "700", color: COLORS.primary, fontSize: 15 },
-    dropdownItemName: { fontSize: 14, fontWeight: "600", color: COLORS.text },
-    dropdownItemSub: { fontSize: 12, color: COLORS.muted, marginTop: 1 },
+    sectionLabel: { fontSize: 13, fontWeight: "600", color: T.textSec, marginBottom: 12, textTransform: "uppercase", letterSpacing: 0.5 },
+    selectBox: { flexDirection: "row", alignItems: "center", gap: 10, borderWidth: 1.5, borderColor: T.border, borderRadius: 12, padding: 14, backgroundColor: T.bg },
+    selectBoxText: { flex: 1, fontSize: 15, color: T.textSec },
+    dropdown: { marginTop: 8, borderWidth: 1.5, borderColor: T.border, borderRadius: 12, overflow: "hidden", backgroundColor: T.card },
+    searchRow: { flexDirection: "row", alignItems: "center", gap: 8, padding: 12, borderBottomWidth: 1, borderBottomColor: T.border },
+    searchInput: { flex: 1, fontSize: 14, color: T.text },
+    dropdownItem: { flexDirection: "row", alignItems: "center", gap: 12, padding: 12, borderBottomWidth: 1, borderBottomColor: T.bg },
+    dropdownAvatar: { width: 36, height: 36, borderRadius: 18, backgroundColor: T.primaryLight, justifyContent: "center", alignItems: "center" },
+    dropdownAvatarText: { fontWeight: "700", color: T.primary, fontSize: 15 },
+    dropdownItemName: { fontSize: 14, fontWeight: "600", color: T.text },
+    dropdownItemSub: { fontSize: 12, color: T.textSec, marginTop: 1 },
     dayScroll: { marginBottom: 10 },
-    dayCard: {
-        alignItems: "center", paddingVertical: 10, paddingHorizontal: 14,
-        borderRadius: 14, marginRight: 8, backgroundColor: COLORS.bg,
-        borderWidth: 1.5, borderColor: COLORS.border, minWidth: 52,
-    },
-    dayCardSelected: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
-    dayName: { fontSize: 11, color: COLORS.muted, fontWeight: "600", marginBottom: 4 },
+    dayCard: { alignItems: "center", paddingVertical: 10, paddingHorizontal: 14, borderRadius: 14, marginRight: 8, backgroundColor: T.bg, borderWidth: 1.5, borderColor: T.border, minWidth: 52 },
+    dayCardSelected: { backgroundColor: T.primary, borderColor: T.primary },
+    dayName: { fontSize: 11, color: T.textSec, fontWeight: "600", marginBottom: 4 },
     dayNameSelected: { color: "rgba(255,255,255,0.8)" },
-    dayNum: { fontSize: 20, fontWeight: "700", color: COLORS.text },
+    dayNum: { fontSize: 20, fontWeight: "700", color: T.text },
     dayNumSelected: { color: "#fff" },
-    todayDot: { width: 5, height: 5, borderRadius: 2.5, backgroundColor: COLORS.primary, marginTop: 4 },
-    selectedDateText: { fontSize: 13, color: COLORS.muted, marginTop: 4 },
+    todayDot: { width: 5, height: 5, borderRadius: 2.5, backgroundColor: T.primary, marginTop: 4 },
+    selectedDateText: { fontSize: 13, color: T.textSec, marginTop: 4 },
     timeGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-    timeChip: {
-        paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10,
-        borderWidth: 1.5, borderColor: COLORS.border, backgroundColor: COLORS.bg,
-    },
-    timeChipSelected: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
-    timeChipText: { fontSize: 13, fontWeight: "600", color: COLORS.muted },
+    timeChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10, borderWidth: 1.5, borderColor: T.border, backgroundColor: T.bg },
+    timeChipSelected: { backgroundColor: T.primary, borderColor: T.primary },
+    timeChipText: { fontSize: 13, fontWeight: "600", color: T.textSec },
     timeChipTextSelected: { color: "#fff" },
     tipGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-    tipChip: {
-        paddingHorizontal: 14, paddingVertical: 10, borderRadius: 10,
-        borderWidth: 1.5, borderColor: COLORS.border, backgroundColor: COLORS.bg,
-    },
-    tipChipSelected: { backgroundColor: T.primaryLight, borderColor: COLORS.primary },
-    tipChipText: { fontSize: 13, fontWeight: "600", color: COLORS.muted },
-    tipChipTextSelected: { color: COLORS.primary },
-    notlarInput: {
-        borderWidth: 1.5, borderColor: COLORS.border, borderRadius: 12,
-        padding: 14, fontSize: 14, color: COLORS.text,
-        backgroundColor: COLORS.bg, minHeight: 100,
-    },
+    tipChip: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 10, borderWidth: 1.5, borderColor: T.border, backgroundColor: T.bg },
+    tipChipSelected: { backgroundColor: T.primaryLight, borderColor: T.primary },
+    tipChipText: { fontSize: 13, fontWeight: "600", color: T.textSec },
+    tipChipTextSelected: { color: T.primary },
+    notlarInput: { borderWidth: 1.5, borderColor: T.border, borderRadius: 12, padding: 14, fontSize: 14, color: T.text, backgroundColor: T.bg, minHeight: 100 },
 });

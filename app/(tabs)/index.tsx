@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -15,18 +15,9 @@ import {
 } from "react-native";
 import { getHastalar, hastaEkle, hastaAra, Hasta } from "../../services/api";
 import { getRandevular, Randevu } from "../../services/appointmentService";
-import { TIP_COLORS, DURUM_COLORS } from "../../constants/theme";
-import { T } from "../../constants/theme";
+import { useTheme } from "../../contexts/ThemeContext";
+import { Theme } from "../../constants/theme";
 
-const COLORS = {
-  primary: T.primary,
-  secondary: T.pink,
-  success: T.success,
-  warning: T.warning,
-  danger: T.danger,
-  purple: T.purple,
-  cyan: T.accent,
-};
 
 const avatars = ["#FEE2E2", "#FEF3C7", "#D1FAE5", "#DBEAFE", "#E0E7FF", "#FCE7F3"];
 
@@ -35,6 +26,9 @@ function getAvatarColor(id?: number) {
 }
 
 export default function Dashboard() {
+  const { T, TIP_COLORS, DURUM_COLORS } = useTheme();
+  const COLORS = T;
+  const styles = useMemo(() => createStyles(T), [T]);
   const [hastalar, setHastalar] = useState<Hasta[]>([]);
   const [aramaMetni, setAramaMetni] = useState("");
   const [aramaYukleniyor, setAramaYukleniyor] = useState(false);
@@ -384,7 +378,7 @@ export default function Dashboard() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (T: Theme) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: T.bg,
@@ -473,7 +467,7 @@ const styles = StyleSheet.create({
   addBtn: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: COLORS.primary,
+    backgroundColor: T.primary,
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
@@ -610,7 +604,7 @@ const styles = StyleSheet.create({
     textAlignVertical: "top",
   },
   saveBtn: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: T.primary,
     borderRadius: 12,
     padding: 16,
     alignItems: "center",

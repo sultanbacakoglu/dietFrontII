@@ -1,23 +1,19 @@
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useState } from "react";
-import { Modal, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { T } from "../../constants/theme";
+import { useCallback, useMemo, useState } from "react";
+import { Modal, Pressable, SafeAreaView, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from "react-native";
+import { useTheme } from "../../contexts/ThemeContext";
+import { Theme } from "../../constants/theme";
 import { getMe, Profil } from "../../services/authService";
 import { getHastalar } from "../../services/api";
 import { getRandevular } from "../../services/appointmentService";
 import { getDiyetPlanlari } from "../../services/dietService";
 
-const COLORS = {
-  primary: T.primary,
-  success: T.success,
-  warning: T.warning,
-  danger: T.danger,
-  purple: T.purple,
-};
-
 export default function ProfileScreen() {
+    const { T, isDark, toggleTheme } = useTheme();
+    const COLORS = T;
+    const styles = useMemo(() => createStyles(T), [T]);
   const router = useRouter();
   const [profil, setProfil] = useState<Profil | null>(null);
   const [logoutModal, setLogoutModal] = useState(false);
@@ -104,12 +100,24 @@ export default function ProfileScreen() {
               <Text style={styles.menuLabel}>Şifre Değiştir</Text>
               <Ionicons name="chevron-forward" size={20} color="#CBD5E1" />
             </TouchableOpacity>
+            <View style={[styles.menuItem, styles.menuItemBorder]}>
+              <View style={[styles.menuIcon, { backgroundColor: isDark ? "#1E1B4B" : "#EEF2FF" }]}>
+                <Ionicons name={isDark ? "moon" : "moon-outline"} size={20} color={T.primary} />
+              </View>
+              <Text style={styles.menuLabel}>Karanlık Mod</Text>
+              <Switch
+                value={isDark}
+                onValueChange={toggleTheme}
+                trackColor={{ false: T.border, true: T.primary }}
+                thumbColor="#fff"
+              />
+            </View>
             <TouchableOpacity style={styles.menuItem}>
               <View style={[styles.menuIcon, { backgroundColor: T.primaryLight }]}>
                 <Ionicons name="information-circle-outline" size={20} color={T.primary} />
               </View>
               <Text style={styles.menuLabel}>Hakkında</Text>
-              <Ionicons name="chevron-forward" size={20} color="#CBD5E1" />
+              <Ionicons name="chevron-forward" size={20} color={T.border} />
             </TouchableOpacity>
           </View>
         </View>
@@ -161,7 +169,7 @@ export default function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (T: Theme) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: T.bg,
@@ -211,7 +219,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: COLORS.primary,
+    backgroundColor: T.primary,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 3,
@@ -338,7 +346,7 @@ const styles = StyleSheet.create({
   logoutText: {
     fontSize: 16,
     fontWeight: "600",
-    color: COLORS.danger,
+    color: T.danger,
   },
   version: {
     textAlign: "center",

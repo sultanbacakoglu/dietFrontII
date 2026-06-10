@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
     ActivityIndicator,
     Alert,
@@ -12,27 +12,20 @@ import {
     View,
 } from "react-native";
 import { getDiyetPlaniById, diyetPlaniSil, diyetPlaniGuncelle, DiyetPlani } from "../../services/dietService";
-import { T, DURUM_COLORS } from "../../constants/theme";
+import { useTheme } from "../../contexts/ThemeContext";
+import { Theme } from "../../constants/theme";
 
-const C = { primary: T.primary, success: T.success, danger: T.danger, bg: T.bg, card: T.card, text: T.text, muted: T.textSec, border: T.border };
 
-const PLAN_DURUM_COLORS: Record<string, { bg: string; text: string }> = {
-    "aktif":      { bg: T.successLight, text: T.success },
-    "tamamlandı": { bg: T.primaryLight,  text: T.primary },
-    "taslak":     { bg: "#F1F5F9",       text: T.textSec },
-};
-
-function Section({ title, content }: { title: string; content?: string }) {
-    if (!content) return null;
-    return (
-        <View style={styles.detailSection}>
-            <Text style={styles.detailLabel}>{title}</Text>
-            <Text style={styles.detailText}>{content}</Text>
-        </View>
-    );
-}
 
 export default function DietPlanDetailScreen() {
+    const { T } = useTheme();
+    const C = T;
+    const styles = useMemo(() => createStyles(T), [T]);
+    const PLAN_DURUM_COLORS: Record<string, { bg: string; text: string }> = {
+        "aktif":      { bg: T.successLight, text: T.success },
+        "tamamlandı": { bg: T.primaryLight,  text: T.primary },
+        "taslak":     { bg: T.border,        text: T.textSec },
+    };
     const router = useRouter();
     const { id } = useLocalSearchParams<{ id: string }>();
     const [plan, setPlan] = useState<DiyetPlani | null>(null);
@@ -107,7 +100,7 @@ export default function DietPlanDetailScreen() {
                         style={[styles.headerBtn, { backgroundColor: silOnay ? T.dangerLight : "#F1F5F9" }]}
                         onPress={handleSil}
                     >
-                        <Ionicons name={silOnay ? "trash" : "trash-outline"} size={18} color={silOnay ? C.danger : C.muted} />
+                        <Ionicons name={silOnay ? "trash" : "trash-outline"} size={18} color={silOnay ? C.danger : T.textSec} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -131,16 +124,16 @@ export default function DietPlanDetailScreen() {
 
                     <View style={styles.heroMeta}>
                         <View style={styles.metaItem}>
-                            <Ionicons name="person-outline" size={14} color={C.muted} />
+                            <Ionicons name="person-outline" size={14} color={T.textSec} />
                             <Text style={styles.metaText}>{plan.hastaAdSoyad ?? "-"}</Text>
                         </View>
                         <View style={styles.metaItem}>
-                            <Ionicons name="calendar-outline" size={14} color={C.muted} />
+                            <Ionicons name="calendar-outline" size={14} color={T.textSec} />
                             <Text style={styles.metaText}>{plan.baslangicTarihi} → {plan.bitisTarihi}</Text>
                         </View>
                         {plan.kaloriHedefi ? (
                             <View style={styles.metaItem}>
-                                <Ionicons name="flame-outline" size={14} color={C.muted} />
+                                <Ionicons name="flame-outline" size={14} color={T.textSec} />
                                 <Text style={styles.metaText}>{plan.kaloriHedefi} kcal/gün</Text>
                             </View>
                         ) : null}
@@ -151,10 +144,10 @@ export default function DietPlanDetailScreen() {
                 {(plan.kahvalti || plan.ogleYemegi || plan.aksamYemegi || plan.araOgun) && (
                     <View style={styles.card}>
                         <Text style={styles.cardTitle}>Öğün Planı</Text>
-                        <Section title="☀️  Kahvaltı" content={plan.kahvalti} />
-                        <Section title="🥗  Öğle Yemeği" content={plan.ogleYemegi} />
-                        <Section title="🌙  Akşam Yemeği" content={plan.aksamYemegi} />
-                        <Section title="🍎  Ara Öğün" content={plan.araOgun} />
+                        {plan.kahvalti ? <><Text style={styles.detailLabel}>☀️  Kahvaltı</Text><Text style={styles.detailText}>{plan.kahvalti}</Text></> : null}
+                        {plan.ogleYemegi ? <><Text style={[styles.detailLabel,{marginTop:14}]}>🥗  Öğle Yemeği</Text><Text style={styles.detailText}>{plan.ogleYemegi}</Text></> : null}
+                        {plan.aksamYemegi ? <><Text style={[styles.detailLabel,{marginTop:14}]}>🌙  Akşam Yemeği</Text><Text style={styles.detailText}>{plan.aksamYemegi}</Text></> : null}
+                        {plan.araOgun ? <><Text style={[styles.detailLabel,{marginTop:14}]}>🍎  Ara Öğün</Text><Text style={styles.detailText}>{plan.araOgun}</Text></> : null}
                     </View>
                 )}
 
@@ -169,38 +162,38 @@ export default function DietPlanDetailScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: C.bg },
+const createStyles = (T: Theme) => StyleSheet.create({
+    container: { flex: 1, backgroundColor: T.bg },
     header: {
         flexDirection: "row", alignItems: "center", justifyContent: "space-between",
         paddingHorizontal: 16, paddingVertical: 12,
-        backgroundColor: C.card, borderBottomWidth: 1, borderBottomColor: C.border,
+        backgroundColor: T.card, borderBottomWidth: 1, borderBottomColor: T.border,
     },
     backBtn: { padding: 4 },
-    headerTitle: { flex: 1, fontSize: 17, fontWeight: "700", color: C.text, marginHorizontal: 8 },
+    headerTitle: { flex: 1, fontSize: 17, fontWeight: "700", color: T.text, marginHorizontal: 8 },
     headerActions: { flexDirection: "row", gap: 8 },
     headerBtn: { width: 36, height: 36, borderRadius: 10, justifyContent: "center", alignItems: "center" },
     heroCard: {
-        backgroundColor: C.card, margin: 16, borderRadius: 18, padding: 20,
+        backgroundColor: T.card, margin: 16, borderRadius: 18, padding: 20,
         shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 10, elevation: 3,
     },
     heroTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },
     durumBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
     durumText: { fontSize: 12, fontWeight: "700" },
     durumBtn: { flexDirection: "row", alignItems: "center", gap: 4 },
-    durumBtnText: { fontSize: 12, color: C.primary, fontWeight: "600" },
-    heroTitle: { fontSize: 20, fontWeight: "700", color: C.text, marginBottom: 6 },
-    heroDesc: { fontSize: 14, color: C.muted, marginBottom: 14, lineHeight: 20 },
+    durumBtnText: { fontSize: 12, color: T.primary, fontWeight: "600" },
+    heroTitle: { fontSize: 20, fontWeight: "700", color: T.text, marginBottom: 6 },
+    heroDesc: { fontSize: 14, color: T.textSec, marginBottom: 14, lineHeight: 20 },
     heroMeta: { gap: 6 },
     metaItem: { flexDirection: "row", alignItems: "center", gap: 6 },
-    metaText: { fontSize: 13, color: C.muted },
+    metaText: { fontSize: 13, color: T.textSec },
     card: {
-        backgroundColor: C.card, marginHorizontal: 16, marginBottom: 12,
+        backgroundColor: T.card, marginHorizontal: 16, marginBottom: 12,
         borderRadius: 16, padding: 16,
         shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 6, elevation: 1,
     },
-    cardTitle: { fontSize: 15, fontWeight: "700", color: C.text, marginBottom: 14 },
+    cardTitle: { fontSize: 15, fontWeight: "700", color: T.text, marginBottom: 14 },
     detailSection: { marginBottom: 14 },
-    detailLabel: { fontSize: 12, fontWeight: "600", color: C.muted, marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.4 },
-    detailText: { fontSize: 14, color: C.text, lineHeight: 22 },
+    detailLabel: { fontSize: 12, fontWeight: "600", color: T.textSec, marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.4 },
+    detailText: { fontSize: 14, color: T.text, lineHeight: 22 },
 });
